@@ -40,10 +40,46 @@ export default function Admin() {
     <div>
       <h1 className="page-title">Admin CMS</h1>
       <div className="card">
-        <button className="cta" onClick={()=>navigator.clipboard.writeText(exportJson())}>Copy Export JSON</button>
-        <button style={{marginLeft:8}} onClick={()=>{const json=prompt('Paste JSON'); if(json) try{importJson(json)}catch{alert('Invalid JSON')}}>Import JSON</button>
-        <button style={{marginLeft:8, background:'var(--danger)', color:'#fff', border:0, padding:'10px 14px', borderRadius:10}} onClick={()=>{ if(confirm('Reset to defaults?')) reset(); }}>Reset</button>
-      </div>
+  <button
+    className="cta"
+    onClick={() => navigator.clipboard.writeText(exportJson())}
+  >
+    Copy Export JSON
+  </button>
+
+  <button
+    style={{ marginLeft: 8 }}
+    // Why: explicit braces prevent the parser from thinking JSX starts early.
+    onClick={() => {
+      const json = prompt('Paste JSON');
+      if (json) {
+        try {
+          importJson(json);
+        } catch (e) {
+          alert('Invalid JSON');
+        }
+      }
+    }}
+  >
+    Import JSON
+  </button>
+
+  <button
+    style={{
+      marginLeft: 8,
+      background: 'var(--danger)',
+      color: '#fff',
+      border: 0,
+      padding: '10px 14px',
+      borderRadius: 10
+    }}
+    onClick={() => {
+      if (confirm('Reset to defaults?')) reset();
+    }}
+  >
+    Reset
+  </button>
+</div>
 
       <Section title="Site Info">
         <div className="grid cols-2">
