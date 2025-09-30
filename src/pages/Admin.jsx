@@ -204,7 +204,7 @@ export default function Admin() {
 }
 
 // path: src/pages/About.jsx
-import { useCRM } from '../crm/CRMProvider.jsx';
+/* import { useCRM } from '../crm/CRMProvider.jsx'; */
 
 function srcOf(x) { return typeof x === 'string' ? x : (x?.url || ''); }
 function altOf(x, i) { return typeof x === 'string' ? `Gallery ${i+1}` : (x?.alt || `Gallery ${i+1}`); }
