@@ -1,4 +1,3 @@
-
 // path: src/pages/Admin.jsx
 import { useState } from 'react';
 import { useCRM } from '../crm/CRMProvider.jsx';
@@ -14,11 +13,7 @@ export default function Admin() {
   const [pass, setPass] = useState('');
   const expected = import.meta.env.VITE_ADMIN_PASS || 'admin123';
 
-  function login(e) {
-    e.preventDefault();
-    if (pass === expected) setAuthed(true); else alert('Incorrect password');
-  }
-
+  function login(e) { e.preventDefault(); if (pass === expected) setAuthed(true); else alert('Incorrect password'); }
   function update(path, value) {
     setData(prev => {
       const copy = structuredClone(prev);
@@ -49,17 +44,12 @@ export default function Admin() {
         <button className="cta" onClick={() => navigator.clipboard.writeText(exportJson())}>Copy Export JSON</button>
         <button style={{ marginLeft: 8 }} onClick={() => {
           const json = prompt('Paste JSON');
-          if (json) {
-            try { importJson(json); }
-            catch { alert('Invalid JSON'); }
-          }
+          if (json) { try { importJson(json); } catch { alert('Invalid JSON'); } }
         }}>Import JSON</button>
         <button
           style={{ marginLeft: 8, background: 'var(--danger)', color: '#fff', border: 0, padding: '10px 14px', borderRadius: 10 }}
           onClick={() => { if (confirm('Reset to defaults?')) reset(); }}
-        >
-          Reset
-        </button>
+        >Reset</button>
       </div>
 
       <Section title="Site Info">
@@ -79,6 +69,7 @@ export default function Admin() {
           onChange={(next) => update('home.heroImages', next)}
           allowUpload
           multiple
+          resize={{ maxWidth: 1920, maxHeight: 1080, quality: 0.82, format: 'auto' }}
         />
       </Section>
 
@@ -125,7 +116,7 @@ export default function Admin() {
         <button onClick={() => update('training', [...data.training, { id: 'new', title: 'New', description: '' }])}>Add Training</button>
       </Section>
 
-      <Section title="About – Mission, Team, FAQs">
+      <Section title="About – Mission, Gallery, Team, FAQs">
         <label>Mission <textarea rows="2" style={{ width: '100%' }} value={data.about.mission} onChange={e => update('about.mission', e.target.value)} /></label>
 
         <h3>Photo Gallery</h3>
@@ -135,6 +126,7 @@ export default function Admin() {
           onChange={(next) => update('about.gallery', next)}
           allowUpload
           multiple
+          resize={{ maxWidth: 1280, maxHeight: 1280, quality: 0.82, format: 'auto' }}
         />
 
         <h3>Team</h3>
@@ -146,18 +138,12 @@ export default function Admin() {
               <ImagePicker
                 label="Photo"
                 items={[{ url: m.photo || '', alt: m.name || '' }]}
-                onChange={(next) => {
-                  const c = [...data.about.team];
-                  c[i].photo = (next?.[0]?.url) || '';
-                  // optional alt per member could be added later
-                  update('about.team', c);
-                }}
+                onChange={(next) => { const c = [...data.about.team]; c[i].photo = (next?.[0]?.url) || ''; update('about.team', c); }}
                 allowUpload
                 multiple={false}
+                resize={{ maxWidth: 600, maxHeight: 600, quality: 0.85, format: 'auto' }}
               />
-              <textarea rows="2" placeholder="Bio" value={m.bio} onChange={e => {
-                const c = [...data.about.team]; c[i].bio = e.target.value; update('about.team', c);
-              }} />
+              <textarea rows="2" placeholder="Bio" value={m.bio} onChange={e => { const c = [...data.about.team]; c[i].bio = e.target.value; update('about.team', c); }} />
               <button onClick={() => update('about.team', data.about.team.filter((_, x) => x !== i))}>Remove</button>
             </div>
           ))}
@@ -201,32 +187,4 @@ export default function Admin() {
       </Section>
     </div>
   );
-}
-
-// path: src/pages/About.jsx
-/* import { useCRM } from '../crm/CRMProvider.jsx'; */
-
-function srcOf(x) { return typeof x === 'string' ? x : (x?.url || ''); }
-function altOf(x, i) { return typeof x === 'string' ? `Gallery ${i+1}` : (x?.alt || `Gallery ${i+1}`); }
-
-export default function About(){ const { data } = useCRM();
-  return (<div><h1 className="page-title">About</h1>
-    <section id="team" className="card" style={{marginTop:12}}><h2 className="section-title">Management Team</h2>
-      <div className="grid cols-2">{data.about.team.map((m,i)=>(<div key={i} className="card">
-        <strong>{m.name}</strong><div className="muted">{m.role}</div>
-        {m.photo ? <img src={m.photo} alt={m.name || 'Team photo'} style={{width:'100%',borderRadius:12, marginTop:8}}/> : null}
-        <p style={{marginTop:6}}>{m.bio}</p></div>))}</div>
-    </section>
-    <section id="reviews" className="card" style={{marginTop:12}}><h2 className="section-title">Reviews</h2>
-      <ul>{data.about.reviews.map((r,i)=>(<li key={i}>"{r.text}" — <span className="muted">{r.name}</span></li>))}</ul>
-    </section>
-    <section id="different" className="card" style={{marginTop:12}}><h2 className="section-title">How We're Different</h2><ul>{data.about.different.map((d,i)=>(<li key={i}>{d}</li>))}</ul></section>
-    <section id="gallery" className="card" style={{marginTop:12}}><h2 className="section-title">Photo Gallery</h2>
-      <div className="grid cols-3">{(data.about.gallery||[]).map((g,i)=>(<img key={i} src={srcOf(g)} alt={altOf(g,i)} style={{width:'100%',borderRadius:12}}/>))}</div>
-    </section>
-    <section id="mission" className="card" style={{marginTop:12}}><h2 className="section-title">Our Mission</h2><p className="muted">{data.about.mission}</p></section>
-    <section id="faqs" className="card" style={{marginTop:12}}><h2 className="section-title">FAQs</h2>
-      <table className="table"><tbody>{data.about.faqs.map((f,i)=>(<tr key={i}><th style={{width:'40%'}}>{f.q}</th><td>{f.a}</td></tr>))}</tbody></table>
-    </section>
-  </div>);
 }

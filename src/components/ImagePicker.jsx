@@ -3,23 +3,63 @@ import { useRef, useState } from 'react';
 
 function normalize(item) {
   if (!item) return { url: '', alt: '' };
-  if (typeof item === 'string') return { url: item, alt: '' };
-  const { url = '', alt = '' } = item || {};
-  return { url, alt };
+  return typeof item === 'string' ? { url: item, alt: '' } : { url: item.url || '', alt: item.alt || '' };
 }
-
 function normalizeList(list = []) {
   return list.map(normalize);
 }
 
-async function fileToDataUrl(file) {
-  // Why: no backend; store small images inline.
-  return new Promise((res, rej) => {
-    const fr = new FileReader();
-    fr.onerror = () => rej(new Error('Read failed'));
-    fr.onload = () => res(fr.result);
-    fr.readAsDataURL(file);
-  });
+function canWebP() {
+  try {
+    const c = document.createElement('canvas');
+    return c.toDataURL('image/webp').startsWith('data:image/webp');
+  } catch { return false; }
+}
+function fitContain(w, h, maxW, maxH) {
+  if (!maxW && !maxH) return { w, h };
+  const r = w / h;
+  let nw = w, nh = h;
+  if (maxW && nw > maxW) { nw = maxW; nh = Math.round(nw / r); }
+  if (maxH && nh > maxH) { nh = maxH; nw = Math.round(nh * r); }
+  return { w: nw, h: nh };
+}
+async function loadImageFromFile(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    img.decoding = 'async';
+    img.src = url;
+    await img.decode();
+    return img;
+  } finally {
+    // revoked later after draw (we need it during draw on some browsers)
+  }
+}
+async function resizeImageFile(file, opts = {}) {
+  const {
+    maxWidth = 1600,
+    maxHeight = 1600,
+    quality = 0.82,
+    format = 'auto' // 'auto'|'webp'|'jpeg'|'png'
+  } = opts;
+
+  const preferWebp = format === 'webp' || (format === 'auto' && canWebP());
+  const outType = preferWebp ? 'image/webp' : (format === 'png' ? 'image/png' : 'image/jpeg');
+
+  const img = await loadImageFromFile(file);
+  const { w, h } = fitContain(img.naturalWidth || img.width, img.naturalHeight || img.height, maxWidth, maxHeight);
+
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d', { alpha: outType === 'image/png' });
+  // Why: higher quality resampling for fewer artifacts.
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(img, 0, 0, w, h);
+
+  const dataUrl = c.toDataURL(outType, outType === 'image/jpeg' || outType === 'image/webp' ? quality : undefined);
+  URL.revokeObjectURL(img.src);
+  return dataUrl;
 }
 
 export default function ImagePicker({
@@ -28,6 +68,7 @@ export default function ImagePicker({
   label = 'Images',
   allowUpload = true,
   multiple = true,
+  resize // { maxWidth, maxHeight, quality, format }
 }) {
   const [list, setList] = useState(normalizeList(items));
   const fileRef = useRef(null);
@@ -40,7 +81,7 @@ export default function ImagePicker({
 
   async function addFiles(files) {
     const arr = Array.from(files || []);
-    const dataUrls = await Promise.all(arr.map(fileToDataUrl));
+    const dataUrls = await Promise.all(arr.map((f) => resize ? resizeImageFile(f, resize) : fileToDataUrl(f)));
     const next = [...list, ...dataUrls.map((u) => ({ url: u, alt: '' }))];
     commit(next);
   }
@@ -48,8 +89,7 @@ export default function ImagePicker({
   function addUrl() {
     const v = urlRef.current?.value?.trim();
     if (!v) return;
-    const next = [...list, { url: v, alt: '' }];
-    commit(next);
+    commit([...list, { url: v, alt: '' }]);
     urlRef.current.value = '';
   }
 
@@ -59,10 +99,7 @@ export default function ImagePicker({
     commit(next);
   }
 
-  function remove(i) {
-    const next = list.filter((_, x) => x !== i);
-    commit(next);
-  }
+  function remove(i) { commit(list.filter((_, x) => x !== i)); }
 
   function move(i, dir) {
     const j = i + dir;
@@ -72,11 +109,18 @@ export default function ImagePicker({
     commit(next);
   }
 
-  function setSingle(obj) {
-    commit([normalize(obj)]);
+  function setSingle(obj) { commit([normalize(obj)]); }
+
+  function fileToDataUrl(file) {
+    return new Promise((res, rej) => {
+      const fr = new FileReader();
+      fr.onerror = () => rej(new Error('Read failed'));
+      fr.onload = () => res(fr.result);
+      fr.readAsDataURL(file);
+    });
   }
 
-  // Single-item mode: show one editor
+  // Single mode
   if (!multiple) {
     const one = normalize(list[0]);
     return (
@@ -87,7 +131,7 @@ export default function ImagePicker({
         <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 12, marginTop: 12 }}>
           <div className="card" style={{ display: 'grid', placeItems: 'center', minHeight: 120 }}>
             {one.url ? (
-              <img src={one.url} alt={one.alt || 'preview'} style={{ maxWidth: '100%', borderRadius: 8 }} />
+              <img src={one.url} alt={one.alt || 'preview'} style={{ maxWidth: '100%', borderRadius: 8 }} loading="lazy" />
             ) : (
               <div className="muted">No image</div>
             )}
@@ -112,7 +156,8 @@ export default function ImagePicker({
                     accept="image/*"
                     onChange={async (e) => {
                       if (!e.target.files?.length) return;
-                      const u = await fileToDataUrl(e.target.files[0]);
+                      const f = e.target.files[0];
+                      const u = resize ? await resizeImageFile(f, resize) : await fileToDataUrl(f);
                       setSingle({ ...one, url: u });
                       e.target.value = '';
                     }}
@@ -129,7 +174,7 @@ export default function ImagePicker({
     );
   }
 
-  // Multi-image UI
+  // Multi mode
   return (
     <div className="card">
       <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
@@ -141,7 +186,7 @@ export default function ImagePicker({
           <div key={i} className="card">
             <div style={{ display: 'grid', placeItems: 'center', minHeight: 120, marginBottom: 8 }}>
               {it.url ? (
-                <img src={it.url} alt={it.alt || 'preview'} style={{ maxWidth: '100%', borderRadius: 8 }} />
+                <img src={it.url} alt={it.alt || 'preview'} style={{ maxWidth: '100%', borderRadius: 8 }} loading="lazy" />
               ) : (
                 <div className="muted">No image</div>
               )}
