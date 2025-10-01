@@ -1,211 +1,88 @@
-// src/pages/Admin.jsx
 import { useEffect, useState } from 'react';
 import { useCRM } from '../crm/CRMProvider.jsx';
 import ImagePicker from '../components/ImagePicker.jsx';
-import { publishContentJson } from '../utils/githubPublish.js';
+import { publishContentJsonDirect, publishContentJsonViaFunction } from '../utils/githubPublish.js';
 
 function Section({ title, children }) {
-  return (
-    <div className="card" style={{ marginTop: 12 }}>
-      <h2 className="section-title">{title}</h2>
-      {children}
-    </div>
-  );
+  return <div className="card" style={{ marginTop: 12 }}><h2 className="section-title">{title}</h2>{children}</div>;
 }
-
-const PAGES = ['home', 'services', 'training', 'about', 'contact', 'jobs', 'privacy', 'credits'];
+const PAGES = ['home','services','training','about','contact','jobs','privacy','credits'];
 
 function downloadContentJson(text) {
   const blob = new Blob([text], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'content.json';
-  a.click();
+  const a = document.createElement('a'); a.href = url; a.download = 'content.json'; a.click();
   URL.revokeObjectURL(url);
 }
 
-export default function Admin() {
+export default function Admin(){
   const { data, setData, reset, export: exportJson, import: importJson } = useCRM();
-
-  // Auth
   const [authed, setAuthed] = useState(false);
   const [pass, setPass] = useState('');
   const expected = import.meta.env.VITE_ADMIN_PASS || 'admin123';
 
-  function login(e) {
-    e.preventDefault();
-    if (pass === expected) setAuthed(true);
-    else alert('Incorrect password');
+  function login(e){ e.preventDefault(); if (pass === expected) setAuthed(true); else alert('Incorrect password'); }
+  function update(path, value){
+    setData(prev => { const copy = structuredClone(prev); const segs = path.split('.'); let cur = copy;
+      for (let i=0;i<segs.length-1;i++){ const k=segs[i]; cur[k] = cur[k] ?? (Number.isInteger(+segs[i+1]) ? [] : {}); cur = cur[k]; }
+      cur[segs.at(-1)] = value; return copy; });
   }
 
-  // Safe nested updater
-  function update(path, value) {
-    setData((prev) => {
-      const copy = structuredClone(prev);
-      const segs = path.split('.');
-      let cur = copy;
-      for (let i = 0; i < segs.length - 1; i++) {
-        const k = segs[i];
-        cur[k] = cur[k] ?? (Number.isInteger(+segs[i + 1]) ? [] : {});
-        cur = cur[k];
+  // Publish settings (browser-only)
+  const [owner, setOwner] = useState(''); const [repo, setRepo] = useState(''); const [branch, setBranch] = useState('main');
+  const [token, setToken] = useState(''); const [busy, setBusy] = useState(false);
+  useEffect(()=>{ try{ const s=JSON.parse(localStorage.getItem('publishSettings/v1')||'{}'); setOwner(s.owner||''); setRepo(s.repo||''); setBranch(s.branch||'main'); setToken(s.token||''); }catch{} },[]);
+  useEffect(()=>{ try{ localStorage.setItem('publishSettings/v1', JSON.stringify({owner,repo,branch,token:token||''})); }catch{} },[owner,repo,branch,token]);
+
+  async function onPublish(){
+    try{
+      setBusy(true);
+      const text = exportJson(); JSON.parse(text);
+      if (token.trim()) {
+        await publishContentJsonDirect({ owner, repo, branch, token }, text);
+      } else {
+        await publishContentJsonViaFunction({ owner, repo, branch }, text);
       }
-      cur[segs.at(-1)] = value;
-      return copy;
-    });
-  }
-
-  // ------- Publish to GitHub (browser-only settings) -------
-  const [owner, setOwner] = useState('');
-  const [repo, setRepo] = useState('');
-  const [branch, setBranch] = useState('main');
-  const [token, setToken] = useState('');
-  const [publishBusy, setPublishBusy] = useState(false);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem('publishSettings/v1');
-      if (raw) {
-        const s = JSON.parse(raw);
-        setOwner(s.owner || '');
-        setRepo(s.repo || '');
-        setBranch(s.branch || 'main');
-        setToken(s.token || '');
-      }
-    } catch {}
-  }, []);
-  useEffect(() => {
-    try {
-      localStorage.setItem('publishSettings/v1', JSON.stringify({ owner, repo, branch, token: token || '' }));
-    } catch {}
-  }, [owner, repo, branch, token]);
-
-  async function onPublish() {
-    try {
-      setPublishBusy(true);
-      const text = exportJson();
-      JSON.parse(text); // validate
-      await publishContentJson({ owner, repo, branch, token, path: 'public/content.json' }, text);
-      alert('Published! Netlify will redeploy with the updated content.');
-    } catch (e) {
+      alert('Published. Netlify will redeploy shortly.');
+    }catch(e){
       alert(`Publish failed: ${e?.message || e}`);
-    } finally {
-      setPublishBusy(false);
-    }
+    }finally{ setBusy(false); }
   }
 
-  function saveToBrowser() {
-    try {
-      localStorage.setItem('crmData/v1', JSON.stringify(data));
-      alert('Saved to this browser.');
-    } catch {
-      alert('Save failed (localStorage).');
-    }
-  }
+  function saveToBrowser(){ try{ localStorage.setItem('crmData/v1', JSON.stringify(data)); alert('Saved to this browser.'); }catch{ alert('Save failed'); } }
 
-  if (!authed) {
-    return (
-      <form onSubmit={login} className="card" style={{ maxWidth: 420, margin: '40px auto' }}>
-        <h1 className="page-title">Admin Login</h1>
-        <input
-          type="password"
-          placeholder="Password"
-          value={pass}
-          onChange={(e) => setPass(e.target.value)}
-          style={{ width: '100%', padding: 10, border: '1px solid var(--border)', borderRadius: 10 }}
-        />
-        <button className="cta" type="submit" style={{ marginTop: 10, width: '100%' }}>
-          Enter
-        </button>
-        <p className="muted" style={{ marginTop: 6 }}>
-          Default: <code>admin123</code> (set <code>VITE_ADMIN_PASS</code> in Netlify).
-        </p>
-      </form>
-    );
-  }
+  if(!authed){ return (<form onSubmit={login} className="card" style={{maxWidth:420, margin:'40px auto'}}>
+    <h1 className="page-title">Admin Login</h1>
+    <input type="password" placeholder="Password" value={pass} onChange={e=>setPass(e.target.value)} style={{ width:'100%', padding:10, border:'1px solid var(--border)', borderRadius:10 }} />
+    <button className="cta" type="submit" style={{ marginTop:10, width:'100%' }}>Enter</button>
+    <p className="muted" style={{ marginTop:6 }}>Default: <code>admin123</code> (set <code>VITE_ADMIN_PASS</code> in Netlify).</p>
+  </form>); }
 
-  // Short helpers to mutate array fields
-  const setList = (key, list) => update(key, list.slice());
-  const addItem = (key, obj) => update(key, [...(data[key] || []), obj]);
+  return (<div>
+    <h1 className="page-title">Admin CMS</h1>
 
-  return (
-    <div>
-      <h1 className="page-title">Admin CMS</h1>
+    <div className="card">
+      <button className="cta" onClick={()=>navigator.clipboard.writeText(exportJson())}>Copy Export JSON</button>
+      <button style={{ marginLeft:8 }} onClick={()=>{ const json=prompt('Paste JSON'); if(json){ try{ importJson(json); alert('Imported.'); }catch{ alert('Invalid JSON'); } } }}>Import JSON</button>
+      <button style={{ marginLeft:8 }} onClick={()=>downloadContentJson(exportJson())}>Download content.json</button>
+      <button style={{ marginLeft:8, background:'var(--danger)', color:'#fff', border:0, padding:'10px 14px', borderRadius:10 }} onClick={()=>{ if(confirm('Reset to defaults?')) reset(); }}>Reset</button>
+    </div>
 
-      {/* Toolbar */}
-      <div className="card">
-        <button className="cta" onClick={() => navigator.clipboard.writeText(exportJson())}>
-          Copy Export JSON
-        </button>
-        <button
-          style={{ marginLeft: 8 }}
-          onClick={() => {
-            const json = prompt('Paste JSON');
-            if (json) {
-              try {
-                importJson(json);
-                alert('Imported.');
-              } catch {
-                alert('Invalid JSON');
-              }
-            }
-          }}
-        >
-          Import JSON
-        </button>
-        <button style={{ marginLeft: 8 }} onClick={() => downloadContentJson(exportJson())}>
-          Download content.json
-        </button>
-        <button
-          style={{ marginLeft: 8, background: 'var(--danger)', color: '#fff', border: 0, padding: '10px 14px', borderRadius: 10 }}
-          onClick={() => {
-            if (confirm('Reset to defaults?')) reset();
-          }}
-        >
-          Reset
-        </button>
+    <Section title="Publishing">
+      <p className="muted">Preferred: leave <b>Token</b> empty to publish via your site’s Netlify Function (secure, no CORS). If you fill Token, we publish directly to GitHub from the browser.</p>
+      <div className="grid cols-2">
+        <label>Owner <input placeholder="your-github-username-or-org" value={owner} onChange={e=>setOwner(e.target.value)} /></label>
+        <label>Repo <input placeholder="your-repo-name" value={repo} onChange={e=>setRepo(e.target.value)} /></label>
+        <label>Branch <input placeholder="main" value={branch} onChange={e=>setBranch(e.target.value)} /></label>
+        <label>Token (optional for direct publish) <input type="password" placeholder="leave blank to use Netlify Function" value={token} onChange={e=>setToken(e.target.value)} /></label>
       </div>
-
-      {/* Publish */}
-      <Section title="Publishing">
-        <p className="muted">
-          Publish writes <code>public/content.json</code> to your GitHub repo so Netlify redeploys and all devices see the
-          same content.
-        </p>
-        <div className="grid cols-2">
-          <label>
-            Owner
-            <input placeholder="your-github-username-or-org" value={owner} onChange={(e) => setOwner(e.target.value)} />
-          </label>
-          <label>
-            Repo
-            <input placeholder="your-repo-name" value={repo} onChange={(e) => setRepo(e.target.value)} />
-          </label>
-          <label>
-            Branch
-            <input placeholder="main" value={branch} onChange={(e) => setBranch(e.target.value)} />
-          </label>
-          <label>
-            Token
-            <input
-              type="password"
-              placeholder="GitHub token (fine-grained, contents:write)"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-            />
-          </label>
-        </div>
-        <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-          <button onClick={saveToBrowser}>Save to Browser</button>
-          <button className="cta" onClick={() => downloadContentJson(exportJson())}>
-            Download content.json
-          </button>
-          <button className="cta" onClick={onPublish} disabled={publishBusy || !owner || !repo || !token}>
-            {publishBusy ? 'Publishing…' : 'Publish to GitHub'}
-          </button>
-          <div className="muted">Token is stored only in this browser.</div>
-        </div>
-      </Section>
+      <div style={{ display:'flex', gap:8, marginTop:8, flexWrap:'wrap' }}>
+        <button onClick={saveToBrowser}>Save to Browser</button>
+        <button className="cta" onClick={()=>downloadContentJson(exportJson())}>Download content.json</button>
+        <button className="cta" onClick={onPublish} disabled={busy || !owner || !repo}>{busy?'Publishing…':'Publish'}</button>
+        <div className="muted">Server mode requires Netlify env var <code>GITHUB_TOKEN</code>.</div>
+      </div>
+    </Section>
 
       {/* SEO */}
       <Section title="SEO – Global">

@@ -1,55 +1,50 @@
-// ============================================================================
-// FILE: src/utils/githubPublish.js
-// Purpose: Commit public/content.json to GitHub via Contents API
-// ============================================================================
 export function encodeBase64(str) {
   const bytes = new TextEncoder().encode(str);
-  let bin = "";
+  let bin = '';
   for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
   return btoa(bin);
 }
 
-/**
- * @param {{ owner:string, repo:string, branch?:string, token:string, path?:string }} cfg
- * @param {string} contentText - prettified JSON
- */
-export async function publishContentJson(cfg, contentText) {
-  const { owner, repo, token } = cfg;
-  const branch = cfg.branch || "main";
-  const path = cfg.path || "public/content.json";
-  if (!owner || !repo || !token) throw new Error("Missing owner/repo/token.");
+export async function publishContentJsonDirect(cfg, contentText) {
+  const { owner, repo, token, branch = 'main', path = 'public/content.json' } = cfg;
+  if (!owner || !repo || !token) throw new Error('Missing owner/repo/token');
 
   const apiBase = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`;
   const headers = {
-    "Accept": "application/vnd.github+json",
-    "Authorization": `token ${token}`,
+    Accept: 'application/vnd.github+json',
+    Authorization: `token ${token}`, // try Bearer if org policy requires
+    'X-GitHub-Api-Version': '2022-11-28',
   };
 
-  // 1) Try to fetch current file to obtain sha (needed for updates)
-  let sha = undefined;
+  // get sha if exists
+  let sha;
   try {
-    const res = await fetch(`${apiBase}?ref=${encodeURIComponent(branch)}`, { headers });
-    if (res.ok) {
-      const j = await res.json();
-      sha = j.sha;
-    }
-  } catch { /* ignore; file may not exist yet */ }
+    const r = await fetch(`${apiBase}?ref=${encodeURIComponent(branch)}`, { headers });
+    if (r.ok) sha = (await r.json()).sha;
+  } catch {}
 
-  // 2) PUT new content
   const body = {
-    message: "chore(content): publish shared content.json",
+    message: 'chore(content): publish shared content.json',
     content: encodeBase64(contentText),
     branch,
-    sha, // include only if present
+    ...(sha ? { sha } : {}),
   };
-  const putRes = await fetch(apiBase, {
-    method: "PUT",
-    headers: { ...headers, "Content-Type": "application/json" },
+
+  const res = await fetch(apiBase, {
+    method: 'PUT',
+    headers: { ...headers, 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
-  if (!putRes.ok) {
-    const txt = await putRes.text().catch(() => "");
-    throw new Error(`GitHub PUT failed: ${putRes.status} ${txt}`);
-  }
-  return putRes.json();
+  if (!res.ok) throw new Error(`GitHub PUT failed ${res.status}: ${await res.text()}`);
+  return res.json();
+}
+
+export async function publishContentJsonViaFunction({ owner, repo, branch = 'main', path = 'public/content.json' }, contentText) {
+  const res = await fetch('/.netlify/functions/publish', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ owner, repo, branch, contentText, path }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
 }
