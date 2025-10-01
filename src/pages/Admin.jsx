@@ -6,6 +6,13 @@ import ImagePicker from '../components/ImagePicker.jsx';
 function Section({ title, children }){ return <div className="card" style={{marginTop:12}}><h2 className="section-title">{title}</h2>{children}</div>; }
 const PAGES = ['home','services','training','about','contact','jobs','privacy','credits'];
 
+function downloadContentJson(text) {
+  const blob = new Blob([text], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'content.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function Admin(){
   const { data, setData, reset, export: exportJson, import: importJson } = useCRM();
   const [authed, setAuthed] = useState(false); const [pass, setPass] = useState('');
@@ -24,7 +31,10 @@ export default function Admin(){
       <button className="cta" onClick={()=>navigator.clipboard.writeText(exportJson())}>Copy Export JSON</button>
       <button style={{marginLeft:8}} onClick={()=>{const json=prompt('Paste JSON'); if(json) { try{importJson(json)}catch{alert('Invalid JSON')} }}}>Import JSON</button>
       <button style={{marginLeft:8,background:'var(--danger)',color:'#fff',border:0,padding:'10px 14px',borderRadius:10}} onClick={()=>{ if(confirm('Reset to defaults?')) reset(); }}>Reset</button>
+      <button style={{ marginLeft: 8 }} onClick={() => downloadContentJson(exportJson())}>Download content.json</button>    
     </div>
+
+    
 
     <Section title="SEO – Global">
       <div className="grid cols-2">

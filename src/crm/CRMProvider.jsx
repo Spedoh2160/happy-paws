@@ -1,36 +1,76 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { defaultContent } from './defaultContent';
+// path: src/crm/CRMProvider.jsx
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { defaultContent } from './defaultContent.js';
 
 const CRMContext = createContext(null);
+const LS_KEY = 'crmData/v1';
 
-function load() {
-  try {
-    const raw = localStorage.getItem('hp_cms_v1');
-    if (!raw) return defaultContent;
-    const parsed = JSON.parse(raw);
-    return { ...defaultContent, ...parsed };
-  } catch { return defaultContent; }
+function deepMerge(base, overlay) {
+  if (Array.isArray(base) || Array.isArray(overlay) || typeof base !== 'object' || typeof overlay !== 'object' || !base || !overlay) {
+    return overlay ?? base;
+  }
+  const out = { ...base };
+  for (const k of Object.keys(overlay)) out[k] = deepMerge(base[k], overlay[k]);
+  return out;
 }
-function save(data) { localStorage.setItem('hp_cms_v1', JSON.stringify(data)); }
 
 export function CRMProvider({ children }) {
-  const [data, setData] = useState(load());
+  const [data, setData] = useState(defaultContent);
+  const loadedRef = useRef(false);
 
-  useEffect(()=>{ save(data); }, [data]);
+  // 1) Load from localStorage (device-specific overrides)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setData(prev => deepMerge(prev, parsed));
+      }
+    } catch {}
+  }, []);
 
-  const value = useMemo(()=>({
+  // 2) Load shared /content.json (repo-published) for everyone
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await fetch('/content.json', { cache: 'no-store' });
+        if (res.ok) {
+          const remote = await res.json();
+          if (alive) setData(prev => deepMerge(prev, remote));
+        }
+      } catch { /* no shared file yet — ignore */ }
+      finally { loadedRef.current = true; }
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  // Persist local edits to localStorage
+  useEffect(() => {
+    if (!loadedRef.current) return; // avoid saving too early
+    try {
+      const raw = JSON.stringify(data);
+      localStorage.setItem(LS_KEY, raw);
+    } catch {}
+  }, [data]);
+
+  // Export/import helpers
+  const api = useMemo(() => ({
     data,
     setData,
-    reset: ()=>setData(defaultContent),
-    export: ()=>JSON.stringify(data, null, 2),
-    import: (json)=>{ const obj = JSON.parse(json); setData(obj); }
+    export: () => JSON.stringify(data, null, 2),
+    import: (raw) => {
+      const next = JSON.parse(raw);
+      setData(next);
+      try { localStorage.setItem(LS_KEY, JSON.stringify(next)); } catch {}
+    },
+    reset: () => {
+      setData(defaultContent);
+      try { localStorage.removeItem(LS_KEY); } catch {}
+    }
   }), [data]);
 
-  return <CRMContext.Provider value={value}>{children}</CRMContext.Provider>;
+  return <CRMContext.Provider value={api}>{children}</CRMContext.Provider>;
 }
 
-export function useCRM() {
-  const ctx = useContext(CRMContext);
-  if (!ctx) throw new Error('useCRM must be used inside CRMProvider');
-  return ctx;
-}
+export function useCRM() { return useContext(CRMContext); }
