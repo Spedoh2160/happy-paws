@@ -1,6 +1,10 @@
+/ ----------------------------------------------------------------------
+// FILE: src/App.jsx (only footer line changed: shows content version)
+// Replace your App.jsx with this if you want a visible "version" badge.
+// ----------------------------------------------------------------------
 import { Routes, Route, NavLink } from 'react-router-dom';
 import { useState } from 'react';
-import { CRMProvider } from './crm/CRMProvider.jsx';
+import { CRMProvider, useCRM } from './crm/CRMProvider.jsx';
 import Home from './pages/Home.jsx'; import Services from './pages/Services.jsx';
 import Training from './pages/Training.jsx'; import About from './pages/About.jsx';
 import Contact from './pages/Contact.jsx'; import Jobs from './pages/Jobs.jsx';
@@ -45,24 +49,33 @@ function Layout({ children, sections, pageKey }) {
     <div className="container"><div className="main-grid">
       <aside className="aside"><div className="card"><div className="section-title">On this page</div><Sidebar sections={sections}/></div></aside>
       <main>{children}</main>
-      <aside className="chat"><div className="card" style={{height:'100%',display:'flex',flexDirection:'column'}}><div className="section-title">Ask Happy Paws</div><Chatbot/></div></aside>
+      <aside className="chat"><div className="card" style={{height:'100%',display:'flex',flexDirection:'column'}}>
+        <div className="section-title">Ask Happy Paws</div><Chatbot/></div></aside>
     </div></div>
   </>);
 }
 
+function FooterVersion(){
+  const { data } = useCRM();
+  const v = data?.seo?.pages?.home?.title ? 'live' : 'default';
+  return <div className="container">© {new Date().getFullYear()} Happy Paws — <span className="muted">content: {v}</span></div>;
+}
+
 export default function App(){
-  return (<CRMProvider><Header /><Routes>
-    <Route path="/" element={<Layout pageKey="home" sections={[{id:'intro',label:'Intro'},{id:'mission',label:'Mission'},{id:'quicklinks',label:'Quick Links'}]}><Home/></Layout>} />
-    <Route path="/services" element={<Layout pageKey="services" sections={[{id:'splash',label:'Splash Parks'},{id:'overnight',label:'Overnight Stays'},{id:'day',label:'Day Options'},{id:'bathing',label:'Self Bathing'},{id:'birthday',label:'Birthday Parties'},{id:'social',label:'Social Areas & 16 Tap'},{id:'events',label:'Events'},{id:'grooming',label:'Full Service Grooming'}]}><Services/></Layout>} />
-    <Route path="/training" element={<Layout pageKey="training" sections={[{id:'group',label:'Group Obedience'},{id:'sport',label:'Sport/AKC/Fun'},{id:'puppy',label:'Puppy University'},{id:'private',label:'Private Lessons'},{id:'staytrain',label:'Stay-N-Train / Day-Train'},{id:'trainers',label:'Meet Trainers & Reviews'}]}><Training/></Layout>} />
-    <Route path="/about" element={<Layout pageKey="about" sections={[{id:'team',label:'Management Team'},{id:'reviews',label:'Reviews'},{id:'different',label:"How We're Different"},{id:'gallery',label:'Photo Gallery'},{id:'mission',label:'Our Mission'},{id:'faqs',label:'FAQs'}]}><About/></Layout>} />
-    <Route path="/contact" element={<Layout pageKey="contact" sections={[{id:'contact',label:'Contact Us'},{id:'reservations',label:'Reservations'}]}><Contact/></Layout>} />
-    <Route path="/jobs" element={<Layout pageKey="jobs" sections={[{id:'careers',label:'Careers'}]}><Jobs/></Layout>} />
-    <Route path="/privacy" element={<Layout pageKey="privacy" sections={[{id:'privacy',label:'Privacy Policy'}]}><Privacy/></Layout>} />
-    <Route path="/credits" element={<Layout pageKey="credits" sections={[{id:'credits',label:'Site Credits'}]}><Credits/></Layout>} />
-    <Route path="/admin" element={<div className="container" style={{padding:'20px 0'}}><Admin/></div>} />
-    <Route path="*" element={<div className="container" style={{padding:'40px 0'}}><h1>404</h1><p>Page not found.</p></div>} />
-  </Routes>
-  <footer className="footer"><div className="container">&copy; {new Date().getFullYear()} Happy Paws. All rights reserved.</div></footer>
+  return (<CRMProvider>
+    <Header />
+    <Routes>
+      <Route path="/" element={<Layout pageKey="home" sections={[{id:'intro',label:'Intro'},{id:'mission',label:'Mission'},{id:'quicklinks',label:'Quick Links'}]}><Home/></Layout>} />
+      <Route path="/services" element={<Layout pageKey="services" sections={[{id:'splash',label:'Splash Parks'},{id:'overnight',label:'Overnight Stays'},{id:'day',label:'Day Options'},{id:'bathing',label:'Self Bathing'},{id:'birthday',label:'Birthday Parties'},{id:'social',label:'Social Areas & 16 Tap'},{id:'events',label:'Events'},{id:'grooming',label:'Full Service Grooming'}]}><Services/></Layout>} />
+      <Route path="/training" element={<Layout pageKey="training" sections={[{id:'group',label:'Group Obedience'},{id:'sport',label:'Sport/AKC/Fun'},{id:'puppy',label:'Puppy University'},{id:'private',label:'Private Lessons'},{id:'staytrain',label:'Stay-N-Train / Day-Train'},{id:'trainers',label:'Meet Trainers & Reviews'}]}><Training/></Layout>} />
+      <Route path="/about" element={<Layout pageKey="about" sections={[{id:'team',label:'Management Team'},{id:'reviews',label:'Reviews'},{id:'different',label:"How We're Different"},{id:'gallery',label:'Photo Gallery'},{id:'mission',label:'Our Mission'},{id:'faqs',label:'FAQs'}]}><About/></Layout>} />
+      <Route path="/contact" element={<Layout pageKey="contact" sections={[{id:'contact',label:'Contact Us'},{id:'reservations',label:'Reservations'}]}><Contact/></Layout>} />
+      <Route path="/jobs" element={<Layout pageKey="jobs" sections={[{id:'careers',label:'Careers'}]}><Jobs/></Layout>} />
+      <Route path="/privacy" element={<Layout pageKey="privacy" sections={[{id:'privacy',label:'Privacy Policy'}]}><Privacy/></Layout>} />
+      <Route path="/credits" element={<Layout pageKey="credits" sections={[{id:'credits',label:'Site Credits'}]}><Credits/></Layout>} />
+      <Route path="/admin" element={<div className="container" style={{padding:'20px 0'}}><Admin/></div>} />
+      <Route path="*" element={<div className="container" style={{padding:'40px 0'}}><h1>404</h1><p>Page not found.</p></div>} />
+    </Routes>
+    <footer className="footer"><FooterVersion/></footer>
   </CRMProvider>);
 }

@@ -1,4 +1,5 @@
-// path: src/crm/CRMProvider.jsx
+// FILE: src/crm/CRMProvider.jsx
+// Loads localStorage (device-only) + shared /content.json (global).
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { defaultContent } from './defaultContent.js';
 
@@ -18,43 +19,40 @@ export function CRMProvider({ children }) {
   const [data, setData] = useState(defaultContent);
   const loadedRef = useRef(false);
 
-  // 1) Load from localStorage (device-specific overrides)
+  // 1) Load device-local overrides
   useEffect(() => {
     try {
       const raw = localStorage.getItem(LS_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        setData(prev => deepMerge(prev, parsed));
-      }
+      if (raw) setData(prev => deepMerge(prev, JSON.parse(raw)));
     } catch {}
   }, []);
 
-  // 2) Load shared /content.json (repo-published) for everyone
+  // 2) Load shared /content.json for everyone (cache-busted)
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
-        const res = await fetch('/content.json', { cache: 'no-store' });
+        const url = `/content.json?v=${Date.now()}`; // prevent stale cache
+        const res = await fetch(url, { cache: 'no-store' });
         if (res.ok) {
           const remote = await res.json();
           if (alive) setData(prev => deepMerge(prev, remote));
         }
-      } catch { /* no shared file yet — ignore */ }
-      finally { loadedRef.current = true; }
+      } catch {
+        // no shared file yet — ok
+      } finally {
+        loadedRef.current = true;
+      }
     })();
     return () => { alive = false; };
   }, []);
 
-  // Persist local edits to localStorage
+  // Persist local edits after initial load completes
   useEffect(() => {
-    if (!loadedRef.current) return; // avoid saving too early
-    try {
-      const raw = JSON.stringify(data);
-      localStorage.setItem(LS_KEY, raw);
-    } catch {}
+    if (!loadedRef.current) return;
+    try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch {}
   }, [data]);
 
-  // Export/import helpers
   const api = useMemo(() => ({
     data,
     setData,
@@ -72,5 +70,4 @@ export function CRMProvider({ children }) {
 
   return <CRMContext.Provider value={api}>{children}</CRMContext.Provider>;
 }
-
-export function useCRM() { return useContext(CRMContext); }
+export function useCRM(){ return useContext(CRMContext); }
