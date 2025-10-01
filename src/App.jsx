@@ -1,7 +1,4 @@
-/ ----------------------------------------------------------------------
-// FILE: src/App.jsx (only footer line changed: shows content version)
-// Replace your App.jsx with this if you want a visible "version" badge.
-// ----------------------------------------------------------------------
+ 
 import { Routes, Route, NavLink } from 'react-router-dom';
 import { useState } from 'react';
 import { CRMProvider, useCRM } from './crm/CRMProvider.jsx';
