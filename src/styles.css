@@ -43,10 +43,11 @@ button { font: inherit; }
   gap: 18px;
   padding: 18px 0 48px;
 }
-@media (max-width: 1199px) {
+/*Remove comment if client wants to remove AI Assit from tablets*/
+/*@media (max-width: 1199px) {
   .main-grid { grid-template-columns: 220px minmax(0,1fr); }
   .chat { display: none; }
-}
+}*/
 @media (max-width: 800px) {
   .main-grid { grid-template-columns: 1fr; }
 }
@@ -88,3 +89,30 @@ button { font: inherit; }
 .table th, .table td { border-bottom: 1px solid var(--border); padding: 10px; text-align: left; }
 
 .footer { border-top: 1px solid var(--border); padding: 28px 0; margin-top: 40px; color: #6b7280; font-size: 14px; }
+
+/* === Mobile layout tweaks (append at end of file) === */
+
+/* Make sure green buttons (e.g., Save to Server) have a color */
+:root{
+  --success: var(--ok, #16a34a);
+}
+
+/* Anchor jump offset so sticky header doesn't cover section titles */
+.section{ scroll-margin-top: 76px; }
+
+/* We do NOT want to hide the assistant on mobile.
+   Your earlier @media (max-width:1199px){ .chat{display:none} } hides it.
+   Override it below (this comes later in the file, so it wins). */
+@media (max-width: 800px){
+  /* Hide the left jump menu on mobile */
+  .aside{ display: none; }
+
+  /* Single column already set; ensure assistant shows under main */
+  .chat{
+    display: block !important;   /* override earlier display:none */
+    position: static;            /* not sticky on mobile */
+    top: auto;
+    height: auto;                /* allow natural height */
+    margin-top: 12px;            /* breathing room below main */
+  }
+}
