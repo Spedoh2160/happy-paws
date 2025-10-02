@@ -15,7 +15,7 @@ function Header() {
   const [open, setOpen] = useState(false);
   return (
     <header className="header"><div className="container header-inner">
-      <a className="brand" href="/" aria-label="Home"><img src="/logo.svg" alt=""/><span className="brand-name">Happy Paws</span></a>
+      <a className="brand" href="/" aria-label="Home"><img src="/logo.png" alt=""/><span className="brand-name">Meadow Ridge Pet Lodge</span></a>
       <nav className="nav" aria-label="Primary">
         <NavLink to="/" end>Home</NavLink><NavLink to="/services">Services</NavLink>
         <NavLink to="/training">Training</NavLink><NavLink to="/about">About</NavLink>
