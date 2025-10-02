@@ -1,5 +1,3 @@
-// FILE: src/crm/CRMProvider.jsx
-// Loads localStorage (device-only) + shared /content.json (global).
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { defaultContent } from './defaultContent.js';
 
@@ -19,7 +17,7 @@ export function CRMProvider({ children }) {
   const [data, setData] = useState(defaultContent);
   const loadedRef = useRef(false);
 
-  // 1) Load device-local overrides
+  // Device-local (instant preview)
   useEffect(() => {
     try {
       const raw = localStorage.getItem(LS_KEY);
@@ -27,27 +25,25 @@ export function CRMProvider({ children }) {
     } catch {}
   }, []);
 
-  // 2) Load shared /content.json for everyone (cache-busted)
+  // Shared server content via Netlify Function (preferred)
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
-        const url = `/content.json?v=${Date.now()}`; // prevent stale cache
-        const res = await fetch(url, { cache: 'no-store' });
+        const res = await fetch('/.netlify/functions/cms', { cache: 'no-store' });
         if (res.ok) {
           const remote = await res.json();
-          if (alive) setData(prev => deepMerge(prev, remote));
+          if (alive && remote && Object.keys(remote).length) {
+            setData(prev => deepMerge(prev, remote));
+          }
         }
-      } catch {
-        // no shared file yet — ok
-      } finally {
-        loadedRef.current = true;
-      }
+      } catch {}
+      finally { loadedRef.current = true; }
     })();
     return () => { alive = false; };
   }, []);
 
-  // Persist local edits after initial load completes
+  // Persist local preview
   useEffect(() => {
     if (!loadedRef.current) return;
     try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch {}
