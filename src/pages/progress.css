@@ -1,0 +1,14 @@
+.progress-page {
+  font-family: sans-serif;
+  margin: 2rem auto;
+  max-width: 800px;
+  padding: 1rem;
+  line-height: 1.6;
+  background: #f9f9f9;
+  color: #333;
+  border-radius: 12px;
+  border: 1px solid #eee; /* visual containment */
+}
+.progress-page h1 { text-align: center; margin-bottom: 2rem; }
+.progress-page .update { border-left: 4px solid #A8824F; padding-left: 1rem; margin-bottom: 2rem; background:#fff; border-radius: 8px; padding-top:.5rem; padding-bottom:.5rem; }
+.progress-page .date { font-weight: bold; color: #555; }

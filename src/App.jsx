@@ -10,6 +10,7 @@ import Admin from './pages/Admin.jsx'; import Sidebar from './components/Sidebar
 import Chatbot from './components/Chatbot.jsx';
 import SEO from './components/SEO.jsx';
 import Background from './components/Background.jsx';
+import Progress from './pages/progress.jsx'; // <-- add
 
 function Header() {
   const [open, setOpen] = useState(false);
@@ -72,6 +73,7 @@ export default function App(){
       <Route path="/credits" element={<Layout pageKey="credits" sections={[{id:'credits',label:'Site Credits'}]}><Credits/></Layout>} />
       <Route path="/admin" element={<div className="container" style={{padding:'20px 0'}}><Admin/></div>} />
       <Route path="*" element={<div className="container" style={{padding:'40px 0'}}><h1>404</h1><p>Page not found.</p></div>} />
+      <Route path="/progress" element={<Progress />} />
     </Routes>
     <footer className="footer"><FooterVersion/></footer>
   </CRMProvider>);
