@@ -1,7 +1,6 @@
-// path: src/pages/Admin.jsx
 import { useState } from 'react';
 import { useCRM } from '../crm/CRMProvider.jsx';
-import ImagePicker from '../components/ImagePicker.jsx'; // client-side resize picker
+import ImagePicker from '../components/ImagePicker.jsx';
 
 function Section({ title, children }) {
   return (
@@ -14,6 +13,10 @@ function Section({ title, children }) {
 
 const PAGES = ['home', 'services', 'training', 'about', 'contact', 'jobs', 'privacy', 'credits'];
 
+// Fallback CSS vars so buttons are visible even if theme vars are missing
+const successBg = 'var(--success, #2e7d32)'; // green fallback
+const dangerBg  = 'var(--danger, #c62828)';  // red fallback
+
 function downloadContentJson(text) {
   const blob = new Blob([text], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -21,16 +24,19 @@ function downloadContentJson(text) {
   URL.revokeObjectURL(url);
 }
 
+// Dev/Prod function base: use Netlify Dev at 8888 locally; empty in production
+const FN_BASE = import.meta.env.DEV ? 'http://localhost:8888' : '';
+
 export default function Admin() {
   const { data, setData, reset, export: exportJson, import: importJson } = useCRM();
 
-  // --- Auth gate (WHY: prevent random users editing) ---
+  // --- Auth gate ---
   const [authed, setAuthed] = useState(false);
   const [pass, setPass] = useState('');
   const expected = import.meta.env.VITE_ADMIN_PASS || 'admin123';
   function login(e) { e.preventDefault(); if (pass === expected) setAuthed(true); else alert('Incorrect password'); }
 
-  // --- Safe deep update (WHY: nested paths; auto-create objects/arrays) ---
+  // --- Deep updater ---
   function update(path, value) {
     setData(prev => {
       const copy = structuredClone(prev);
@@ -47,16 +53,16 @@ export default function Admin() {
     });
   }
 
-  // --- Save to Server via Netlify Function (WHY: persist for everyone) ---
+  // --- Save to Server (Netlify Function) ---
   const [busy, setBusy] = useState(false);
   async function saveToServer() {
     try {
       setBusy(true);
-      const text = exportJson(); JSON.parse(text); // validate before send
-      const res = await fetch('/.netlify/functions/cms', {
+      const text = exportJson(); JSON.parse(text); // validate
+      const res = await fetch(`${FN_BASE}/.netlify/functions/cms`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Admin-Key': pass },
-        body: text,
+        body: text
       });
       if (!res.ok) throw new Error(await res.text());
       alert('Saved for everyone.');
@@ -67,12 +73,10 @@ export default function Admin() {
     }
   }
 
-  // --- Optional local-only save (preview on this device) ---
+  // Local-only save (preview on this device)
   function saveToBrowser() {
-    try {
-      localStorage.setItem('crmData/v1', JSON.stringify(data));
-      alert('Saved to this browser.');
-    } catch { alert('Save failed (localStorage).'); }
+    try { localStorage.setItem('crmData/v1', JSON.stringify(data)); alert('Saved to this browser.'); }
+    catch { alert('Save failed (localStorage).'); }
   }
 
   if (!authed) {
@@ -99,22 +103,31 @@ export default function Admin() {
       <h1 className="page-title">Admin CMS</h1>
 
       {/* Toolbar */}
-      <div className="card">
+      <div className="card" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         <button className="cta" onClick={() => navigator.clipboard.writeText(exportJson())}>Copy Export JSON</button>
-        <button style={{ marginLeft: 8 }} onClick={() => {
+        <button onClick={() => {
           const json = prompt('Paste JSON');
           if (json) { try { importJson(json); alert('Imported.'); } catch { alert('Invalid JSON'); } }
         }}>Import JSON</button>
-        <button style={{ marginLeft: 8 }} onClick={() => downloadContentJson(exportJson())}>Download content.json</button>
-        <button style={{ marginLeft: 8 }} onClick={saveToBrowser}>Save to Browser</button>
+        <button onClick={() => downloadContentJson(exportJson())}>Download content.json</button>
+        <button onClick={saveToBrowser}>Save to Browser</button>
+
+        {/* Visible Save to Server button with color fallback */}
         <button
-          style={{ marginLeft: 8, background:'var(--success)', color:'#fff', border:0, padding:'10px 14px', borderRadius:10 }}
-          onClick={saveToServer} disabled={busy}
-        >{busy ? 'Saving…' : 'Save to Server'}</button>
+          style={{ background: successBg, color:'#fff', border:0, padding:'10px 14px', borderRadius:10 }}
+          onClick={saveToServer}
+          disabled={busy}
+          aria-busy={busy ? 'true' : 'false'}
+        >
+          {busy ? 'Saving…' : 'Save to Server'}
+        </button>
+
         <button
-          style={{ marginLeft: 8, background:'var(--danger)', color:'#fff', border:0, padding:'10px 14px', borderRadius:10 }}
+          style={{ background: dangerBg, color:'#fff', border:0, padding:'10px 14px', borderRadius:10 }}
           onClick={() => { if (confirm('Reset to defaults?')) reset(); }}
-        >Reset</button>
+        >
+          Reset
+        </button>
       </div>
 
       {/* SEO – Global */}
@@ -294,8 +307,7 @@ export default function Admin() {
                 label="Photo"
                 items={[{ url: m.photo || '', alt: m.name || '' }]}
                 onChange={(next) => { const c=[...(data.about?.team || [])]; c[i].photo = next?.[0]?.url || ''; update('about.team', c); }}
-                allowUpload multiple={false}
-                resize={{ maxWidth: 600, maxHeight: 600, quality: 0.85, format: 'auto' }}
+                allowUpload multiple={false} resize={{ maxWidth: 600, maxHeight: 600, quality: 0.85, format: 'auto' }}
               />
               <textarea rows="2" placeholder="Bio" value={m.bio} onChange={e => { const c=[...(data.about?.team || [])]; c[i].bio=e.target.value; update('about.team', c); }} />
               <button onClick={() => update('about.team', (data.about?.team || []).filter((_, x) => x !== i))}>Remove</button>
