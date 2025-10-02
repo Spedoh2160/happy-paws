@@ -7,6 +7,71 @@ export default function Progress(){
       <h1>🌱 Site Progress Updates</h1>
 
       <div className="update">
+        <div className="date">Oct 2, 2025 10:00 a.m. to 2:00 p.m.</div>
+        <ul>
+          <li>Finished recoding CMS to save with simple Save to Server Button</li>
+          <li>Tested background colors, and background images</li>
+          <li>Tested tablet and phone layouts </li>
+          <li>Issues, on phone: pages are top loading (CSS Issue)</li>
+          <li>Tablet verticle needs aside removed like mobile (CSS Issue)</li>
+          <li>Gallery images in about are not linking</li>
+          <li>Emailed client to update on progress.</li>
+
+        </ul>
+      </div>
+
+      <div className="update">
+        <div className="date">Oct 1, 2025 9:00 a.m. to 3:00 p.m.</div>
+        <ul>
+          <li>New CMS is only updating browser data (it all disappears on refresh)</li>
+          <li>I like the CMS layout, although it will require client training.</li>
+          <li>Spent the day recoding the CMS to update with simple start button.</li>
+        </ul>
+      </div>
+
+      <div className="update">
+        <div className="date">Sept 30, 2025 10:00 a.m. to 3:00 p.m.</div>
+        <ul>
+          <li>Added AI Chatbox (will need to train)</li>
+          <li>Requested information from client via email. </li>
+          <li>Full wire layout with ability to change backgrounds, images and text.</li>
+        </ul>
+      </div>
+
+      <div className="update">
+        <div className="date">Sept 29, 2025 9:00 a.m. to 1:00 p.m.</div>
+        <ul>
+          <li>Working with new CMS</li>
+          <li>Project appears to working as expected</li>
+          <li>Full wire layout with ability to change backgrounds, images and text.</li>
+        </ul>
+      </div>
+      
+      <div className="update">
+        <div className="date">Sept 28, 2025 5:20 p.m.</div>
+        <ul>
+          <li>Received email from Gary. Will resume work tomorrow.</li>           
+        </ul>
+      </div>
+      
+      <div className="update">
+        <div className="date">Sept 14, 2025 Waiting for feedback from client</div>
+        <ul>
+          <li>Have not heard from client</li>
+          <li>Waiting for email response. </li>
+        </ul>
+      </div>
+
+      <div className="update">
+        <div className="date">Sept 13, 2025 9:00 a.m. to 11:00 a.m.</div>
+        <ul>
+          <li>Scrapped working model due to failure of CMS to update without accessing backend code.</li>
+          <li>Researched developing fully integrated admin CMS</li>
+          <li>Constructed new site wireframe with new CMS</li>
+        </ul>
+      </div>
+
+      <div className="update">
         <div className="date">Sept 12, 2025 1:00 p.m. to 3:30 p.m.</div>
         <ul>
           <li>Added multiple article creation to Home Page</li>
@@ -51,7 +116,7 @@ export default function Progress(){
             <li>
               <h3>1. Add a Professional Header</h3>
               <p>Position your <strong>logo on the left</strong>, paired with site navigation in the center or right.</p>
-              <p>Include a succinct tagline like: <em>“Caring Pet Boarding in Rapid City, MI”</em>.</p>
+              <p>Include a succinct tagline like: <em>“Caring Pet Boarding in Rapid City, SD ”</em>.</p>
             </li>
 
             <li>
