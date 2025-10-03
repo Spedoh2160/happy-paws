@@ -12,21 +12,21 @@ export default function Home() {
       </section>
 
       <section style={{ marginTop: 16 }}>
-        <h2 className="section-title">Quick Links</h2>
-        <div className="grid home-teasers">
-          {(data.home?.missionTeasers || []).map((t, i) => (
-            <div key={i}>
-              <h3 style={{ margin: '0 0 6px', fontWeight: 800 }}>{t.title}</h3>
-              <p className="muted" style={{ margin: 0 }}>{t.excerpt}</p>
-              {t.link ? (
-                <a className="cta" href={t.link} style={{ marginTop: 10, display: 'inline-block' }}>
-                  Learn more
-                </a>
-              ) : null}
-            </div>
-          ))}
-        </div>
-      </section>
+      <h2 className="section-title">Coming Soon - Your Pet's Home Away from Home</h2>
+      <div className="grid home-teasers">
+        {(data.home?.missionTeasers || []).map((t, i) => (
+          <div key={i}>
+            <h3 style={{ margin: '0 0 6px', fontWeight: 800 }}>{t.title}</h3>
+            <p className="muted" style={{ margin: 0 }}>{t.excerpt}</p>
+            {t.link ? (
+              <a className="cta" href={t.link} style={{ marginTop: 10, display: 'inline-block' }}>
+                Learn more
+              </a>
+            ) : null}
+          </div>
+        ))}
+      </div>
+    </section>
 
       <section id="quicklinks" className="card" style={{marginTop:12}}>
         <h2 className="section-title">Quick Links</h2>

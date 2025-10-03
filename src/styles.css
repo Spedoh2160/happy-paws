@@ -118,6 +118,13 @@ button { font: inherit; }
   }
 }
 
+.grid.home-teasers,
+.home-teasers{
+  display: grid;
+  grid-template-columns: 1fr !important; /* override any cols-2/cols-3 */
+  gap: 16px;
+}
+
 .home-teasers{
   /* responsive grid like other pages */
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -129,9 +136,9 @@ button { font: inherit; }
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 16px;
-  display: flex;
+  /* display: flex;
   flex-direction: column;
-  min-height: 160px;
+  min-height: 160px; */
 }
 .home-teasers > * .cta{
   align-self: flex-start; /* button aligns like other cards */
