@@ -48,6 +48,7 @@ button { font: inherit; }
   .main-grid { grid-template-columns: 220px minmax(0,1fr); }
   .chat { display: none; }
 }*/
+
 @media (max-width: 800px) {
   .main-grid { grid-template-columns: 1fr; }
 }
@@ -115,4 +116,26 @@ button { font: inherit; }
     height: auto;                /* allow natural height */
     margin-top: 12px;            /* breathing room below main */
   }
+}
+
+.home-teasers{
+  /* responsive grid like other pages */
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+.home-teasers > *{
+  /* mirror .card styling so they look identical site-wide */
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 160px;
+}
+.home-teasers > * .cta{
+  align-self: flex-start; /* button aligns like other cards */
+}
+@media (max-width: 800px){
+  .home-teasers{ grid-template-columns: 1fr; }
 }

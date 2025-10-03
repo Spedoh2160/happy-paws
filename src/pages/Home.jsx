@@ -11,21 +11,26 @@ export default function Home() {
         <p className="muted" style={{marginTop:12}}>{data.home.mission}</p>
       </section>
 
-      <section id="mission" className="card" style={{marginTop:12}}>
-        <h2 className="section-title">Mission Teasers</h2>
-        <div className="grid cols-3">
-          {data.home.missionTeasers.map((m,i)=>(
-            <a key={i} className="card" href={m.link}>
-              <h3 style={{margin:'4px 0'}}>{m.title}</h3>
-              <p className="muted">{m.excerpt}</p>
-            </a>
+      <section style={{ marginTop: 16 }}>
+        <h2 className="section-title">Quick Links</h2>
+        <div className="grid home-teasers">
+          {(data.home?.missionTeasers || []).map((t, i) => (
+            <div key={i}>
+              <h3 style={{ margin: '0 0 6px', fontWeight: 800 }}>{t.title}</h3>
+              <p className="muted" style={{ margin: 0 }}>{t.excerpt}</p>
+              {t.link ? (
+                <a className="cta" href={t.link} style={{ marginTop: 10, display: 'inline-block' }}>
+                  Learn more
+                </a>
+              ) : null}
+            </div>
           ))}
         </div>
       </section>
 
       <section id="quicklinks" className="card" style={{marginTop:12}}>
         <h2 className="section-title">Quick Links</h2>
-        <div className="grid cols-3">
+        <div className="grid cols-1">
           {data.home.quickLinks.map((q,i)=>(
             <a key={i} className="card" href={q.href}>{q.label}</a>
           ))}
