@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCRM } from '../crm/CRMProvider.jsx';
 import ImagePicker from '../components/ImagePicker.jsx';
+ import GalleryManager from '../components/GalleryManager.jsx';
 
 function Section({ title, children }) {
   return (
@@ -289,13 +290,10 @@ export default function Admin() {
         </label>
 
         <h3>Photo Gallery</h3>
-        <ImagePicker
-          label="Gallery Images"
-          items={data.about?.gallery || []}
-          onChange={(next) => update('about.gallery', next)}
-          allowUpload multiple
-          resize={{ maxWidth: 1280, maxHeight: 1280, quality: 0.82, format: 'auto' }}
-        />
+          <GalleryManager
+            value={data.about.gallery}
+            onChange={(next) => update('about.gallery', next)}
+         />
 
         <h3>Team</h3>
         <div className="grid cols-2">
