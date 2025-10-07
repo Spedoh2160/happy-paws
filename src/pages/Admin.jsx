@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useCRM } from '../crm/CRMProvider.jsx';
 import ImagePicker from '../components/ImagePicker.jsx';
- import GalleryManager from '../components/GalleryManager.jsx';
+import GalleryManager from '../components/GalleryManager.jsx';
 
 function Section({ title, children }) {
   return (

@@ -1,23 +1,15 @@
-// ======================================================
-// file: src/components/GalleryManager.jsx
-// Purpose: Admin helper to upload images AND edit captions
-// Usage: <GalleryManager value={data.about.gallery} onChange={next => update('about.gallery', next)} />
-// ======================================================
 import ImagePicker from './ImagePicker.jsx';
 
 export default function GalleryManager({ value = [], onChange }) {
   const items = toObjects(value);
 
-  function updateIdx(i, patch){
+  function setItem(i, patch){
     const next = items.map((it, idx) => idx === i ? { ...it, ...patch } : it);
     onChange?.(next);
   }
-  function removeIdx(i){
-    const next = items.filter((_, idx) => idx !== i);
-    onChange?.(next);
-  }
+  function remove(i){ onChange?.(items.filter((_, idx) => idx !== i)); }
   function onPickerChange(nextItems){
-    // ImagePicker gives [{ url, alt }]
+    // ImagePicker provides [{ url, alt }]
     const next = (nextItems || []).map(x => ({ url: x.url, caption: x.alt || '' }));
     onChange?.(next);
   }
@@ -32,7 +24,6 @@ export default function GalleryManager({ value = [], onChange }) {
         multiple
         resize={{ maxWidth: 1280, maxHeight: 1280, quality: 0.82, format: 'auto' }}
       />
-      {/* Captions editor */}
       <div className="grid cols-2" style={{ marginTop: 12 }}>
         {items.map((it, i) => (
           <div key={i} className="card" style={{ display:'grid', gridTemplateColumns:'80px 1fr', gap:12 }}>
@@ -41,16 +32,18 @@ export default function GalleryManager({ value = [], onChange }) {
               <label>Caption
                 <input
                   value={it.caption || ''}
-                  onChange={e => updateIdx(i, { caption: e.target.value })}
+                  onChange={e => setItem(i, { caption: e.target.value })}
                   placeholder="Describe the photo…"
                   style={{ width:'100%', marginTop:6 }}
                 />
               </label>
               <div style={{ marginTop:8 }}>
                 <button
-                  onClick={() => removeIdx(i)}
+                  onClick={() => remove(i)}
                   style={{ padding:'8px 12px', borderRadius:8, border:'1px solid var(--border)', background:'#fff' }}
-                >Remove</button>
+                >
+                  Remove
+                </button>
               </div>
             </div>
           </div>
@@ -65,7 +58,7 @@ function toObjects(val){
   return val.map(v => {
     if (!v) return null;
     if (typeof v === 'string') return { url: v, caption: '' };
-    if (typeof v === 'object' && v.url) return { url: v.url, caption: v.caption || v.alt || '' };
+    if (typeof v === 'object' && v.url) return { url: v.url, caption: v.caption ?? v.alt ?? '' };
     return null;
   }).filter(Boolean);
 }

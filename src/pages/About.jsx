@@ -36,9 +36,10 @@ export default function About() {
       </section>
 
       {/* ✅ NEW: Gallery slider with captions */}
-      <section id="gallery" className="card" style={{marginTop:12}}>
+      <section id="gallery" className="card" style={{ marginTop: 12 }}>
         <h2 className="section-title">Photo Gallery</h2>
-        <GallerySlider items={galleryItems} />
+        {/* ✅ Slider replaces the broken grid */}
+        <GallerySlider items={galleryItems} height={420} fit="contain" />
       </section>
 
       <section id="mission" className="card" style={{marginTop:12}}>
@@ -62,11 +63,21 @@ export default function About() {
 
 function normalizeGallery(gal){
   if (!Array.isArray(gal)) return [];
-  const out = [];
-  for (const it of gal){
-    if (!it) continue;
-    if (typeof it === 'string') out.push({ url: it, caption: '' });
-    else if (typeof it === 'object' && it.url) out.push({ url: it.url, caption: it.caption || it.alt || '' });
-  }
-  return out;
+  return gal.map((it) => {
+    if (!it) return null;
+    if (typeof it === 'string') return { url: it, caption: filenameToCaption(it) };
+    if (typeof it === 'object' && it.url) {
+      const cap = it.caption ?? it.alt ?? filenameToCaption(it.url);
+      return { url: it.url, caption: cap || '' };
+    }
+    return null;
+  }).filter(Boolean);
+}
+
+function filenameToCaption(url=''){
+  try{
+    const name = url.split('/').pop() || '';
+    const base = name.replace(/\.[a-z0-9]+$/i,'').replace(/[-_]+/g, ' ').trim();
+    return base ? base.charAt(0).toUpperCase() + base.slice(1) : '';
+  }catch{ return ''; }
 }

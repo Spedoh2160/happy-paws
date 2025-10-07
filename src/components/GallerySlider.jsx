@@ -1,64 +1,93 @@
-// ======================================================
-// file: src/components/GallerySlider.jsx
-// Purpose: Reusable slider with captions (auto-advance + dots)
-// ======================================================
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 export default function GallerySlider({
-  items = [],        // [{ url, caption }]
-  intervalMs = 4500, // auto-advance delay
-  height = 420,      // max height
+  items = [],          // [{ url, caption }]
+  intervalMs = 4500,   // auto-advance
+  height = 420,        // fixed frame height in px
+  fit = 'contain',     // 'contain' (show all) or 'cover'
 }) {
   const slides = useMemo(
     () => (Array.isArray(items) ? items.filter(x => x && x.url) : []),
     [items]
   );
+
   const [idx, setIdx] = useState(0);
   const timerRef = useRef(null);
 
   useEffect(() => {
     if (slides.length <= 1) return;
-    timerRef.current = setInterval(() => {
-      setIdx((i) => (i + 1) % slides.length);
-    }, intervalMs);
-    return () => clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => setIdx(i => (i + 1) % slides.length), intervalMs);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [slides.length, intervalMs]);
 
-  function go(i) {
-    if (timerRef.current) clearInterval(timerRef.current);
-    setIdx(i);
-  }
-  function prev(){ go((idx - 1 + slides.length) % slides.length); }
-  function next(){ go((idx + 1) % slides.length); }
+  const go   = (i) => { if (timerRef.current) clearInterval(timerRef.current); setIdx(i); };
+  const prev = () => go((idx - 1 + slides.length) % slides.length);
+  const next = () => go((idx + 1) % slides.length);
 
   if (!slides.length) {
-    return <div className="card" style={{textAlign:'center'}}>No gallery images yet.</div>;
+    return <div className="card" style={{ textAlign:'center' }}>No gallery images yet.</div>;
   }
 
+  // inline styles to avoid global CSS conflicts
+  const dotStyle = (active) => ({
+    width: 10, height: 10, borderRadius: 999,
+    background: active ? 'var(--brand, #2563eb)' : 'rgba(255,255,255,.65)',
+    border: '1px solid rgba(0,0,0,.2)', cursor:'pointer'
+  });
+
   return (
-    <div className="slider" style={{ maxHeight: height, position:'relative' }} aria-roledescription="carousel">
+    <div
+      className="gslider"
+      aria-roledescription="carousel"
+      style={{ position:'relative', overflow:'hidden', borderRadius:14, background:'#000' }}
+    >
       <div
-        className="slides"
-        style={{ transform: `translateX(-${idx * 100}%)` }}
+        className="gslides"
+        style={{
+          display:'flex',
+          transform:`translateX(-${idx * 100}%)`,
+          transition:'transform .4s ease',
+          willChange:'transform'
+        }}
       >
         {slides.map((s, i) => (
-          <figure className="slide" key={i} style={{ background:'#000' }}>
+          <figure
+            key={i}
+            className="gslide"
+            style={{
+              margin:0,
+              minWidth:'100%',           // ✅ fixed slide width
+              width:'100%',
+              height,                    // ✅ fixed frame height (prevents jumping)
+              position:'relative',
+              display:'grid',
+              placeItems:'center',
+              background:'#000'
+            }}
+          >
             <img
               src={s.url}
               alt={s.caption || `Gallery ${i + 1}`}
-              style={{ width:'100%', height:'100%', objectFit:'cover' }}
-              onError={(e)=>{ e.currentTarget.style.opacity='0.2'; }}
+              onError={(e)=>{ e.currentTarget.style.opacity='0.25'; }}
+              style={{
+                maxWidth:'100%',
+                maxHeight:'100%',
+                width: fit === 'cover' ? '100%' : 'auto',
+                height: fit === 'cover' ? '100%' : 'auto',
+                objectFit: fit,              // ✅ contain by default
+                objectPosition:'50% 50%',    // ✅ centered
+                display:'block'
+              }}
             />
-            {/* Caption overlay */}
-            {(s.caption) ? (
+            {/* Caption overlay (always try to show if not empty) */}
+            {s.caption ? (
               <figcaption
                 style={{
-                  position:'absolute',
-                  left:0, right:0, bottom:0,
+                  position:'absolute', left:0, right:0, bottom:0,
                   padding:'10px 14px',
                   color:'#fff',
-                  textShadow:'0 1px 2px rgba(0,0,0,.7)',
-                  background:'linear-gradient(transparent, rgba(0,0,0,.45))'
+                  textShadow:'0 1px 2px rgba(0,0,0,.9)',
+                  background:'linear-gradient(transparent, rgba(0,0,0,.55))'
                 }}
               >
                 {s.caption}
@@ -68,31 +97,38 @@ export default function GallerySlider({
         ))}
       </div>
 
-      {/* Prev/Next */}
+      {/* Prev / Next */}
       {slides.length > 1 && (
         <>
           <button
-            aria-label="Previous slide"
+            aria-label="Previous"
             onClick={prev}
-            style={navBtnStyle('left')}
+            style={navBtn('left')}
           >‹</button>
           <button
-            aria-label="Next slide"
+            aria-label="Next"
             onClick={next}
-            style={navBtnStyle('right')}
+            style={navBtn('right')}
           >›</button>
         </>
       )}
 
       {/* Dots */}
       {slides.length > 1 && (
-        <div className="slider-controls">
+        <div
+          className="gcontrols"
+          style={{
+            position:'absolute', bottom:10, left:'50%',
+            transform:'translateX(-50%)',
+            display:'flex', gap:6, alignItems:'center'
+          }}
+        >
           {slides.map((_, i) => (
             <button
               key={i}
-              className={`dot ${i === idx ? 'active' : ''}`}
               aria-label={`Go to slide ${i+1}`}
               onClick={() => go(i)}
+              style={dotStyle(i === idx)}
             />
           ))}
         </div>
@@ -101,21 +137,19 @@ export default function GallerySlider({
   );
 }
 
-function navBtnStyle(side){
+function navBtn(side){
   return {
     position:'absolute',
-    top:'50%',
-    transform:'translateY(-50%)',
+    top:'50%', transform:'translateY(-50%)',
     [side]:'8px',
     width:36, height:36,
     borderRadius:999,
     border:'1px solid rgba(255,255,255,.6)',
-    background:'rgba(0,0,0,.25)',
+    background:'rgba(0,0,0,.35)',
     color:'#fff',
     cursor:'pointer',
-    display:'grid',
-    placeItems:'center',
-    fontSize:20,
-    lineHeight:1
+    display:'grid', placeItems:'center',
+    fontSize:20, lineHeight:1
   };
 }
+
