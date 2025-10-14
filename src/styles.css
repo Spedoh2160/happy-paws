@@ -1,3 +1,6 @@
+/* path: src/styles.css */
+
+/* ---------- Design tokens ---------- */
 :root {
   --bg: #ffffff;
   --text: #111;
@@ -8,31 +11,70 @@
   --border: #e5e7eb;
   --danger: #ef4444;
   --ok: #16a34a;
+
+  /* Sticky header height: keep in sync with real header */
   --header-h: 76px;
+
+  /* Admin accent helpers */
+  --success: var(--ok);
 }
+
+/* ---------- Global base ---------- */
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: var(--header-h);}
-body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; color: var(--text); background: var(--bg); }
+html {
+  scroll-behavior: smooth;                 /* smooth anchor jumps */
+  scroll-padding-top: var(--header-h);     /* make room for sticky header */
+}
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  color: var(--text);
+  background: var(--bg);
+}
 a { color: inherit; text-decoration: none; }
 button { font: inherit; }
-section, .card, .section, [data-scroll-target] {
-  scroll-margin-top: var(--header-h);
-}
+
+/* Ensure any target lands below sticky header */
+section, .card, .section, [data-scroll-target] { scroll-margin-top: var(--header-h); }
+
+/* Containers */
 .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
 
-.header { position: sticky; top: 0; z-index: 50; background: #fff; border-bottom: 1px solid var(--border); }
-.header-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; }
+/* ---------- Header & navigation ---------- */
+.header {
+  position: sticky; top: 0; z-index: 50;
+  background: #fff; border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 12px 0;
+}
 .brand { display: flex; align-items: center; gap: 10px; }
 .brand img { width: 36px; height: 36px; }
 .brand-name { font-weight: 800; }
+
 .nav { display: none; gap: 16px; align-items: center; }
-.cta { background: var(--brand); color: #fff; border: 0; padding: 10px 14px; border-radius: 10px; cursor: pointer; }
+.cta {
+  background: var(--brand); color: #fff; border: 0;
+  padding: 10px 14px; border-radius: 10px; cursor: pointer;
+}
 .cta:hover { background: var(--brand-600); }
-.hamburger { display: inline-flex; background: #fff; border: 1px solid var(--border); padding: 8px; border-radius: 10px; cursor: pointer; }
-.drawer { position: fixed; inset: 0 0 0 auto; width: 80%; max-width: 360px; background: #fff; box-shadow: -10px 0 30px rgba(0,0,0,0.15); transform: translateX(100%); transition: transform .25s ease; z-index: 60; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+
+.hamburger {
+  display: inline-flex; background: #fff; border: 1px solid var(--border);
+  padding: 8px; border-radius: 10px; cursor: pointer;
+}
+
+.drawer {
+  position: fixed; inset: 0 0 0 auto; width: 80%; max-width: 360px; z-index: 60;
+  background: #fff; box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+  transform: translateX(100%); transition: transform .25s ease;
+  padding: 20px; display: flex; flex-direction: column; gap: 12px;
+}
 .drawer.open { transform: translateX(0); }
 .drawer a { padding: 10px 8px; border-radius: 8px; }
 .drawer a:hover { background: var(--surface); }
+
 .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 55; }
 
 @media (min-width: 960px) {
@@ -41,33 +83,25 @@ section, .card, .section, [data-scroll-target] {
   .drawer, .overlay { display: none; }
 }
 
+/* ---------- Main layout ---------- */
 .main-grid {
   display: grid;
   grid-template-columns: 260px minmax(0,1fr) 320px;
   gap: 18px;
   padding: 18px 0 48px;
 }
-/*Remove comment if client wants to remove AI Assit from tablets*/
-/*@media (max-width: 1199px) {
-  .main-grid { grid-template-columns: 220px minmax(0,1fr); }
-  .chat { display: none; }
-}*/
 
-@media (max-width: 800px) {
-  .main-grid { grid-template-columns: 1fr; }
-  :root { --header-h: 68px; } /* tweak for mobile header size */
-}
-
-.card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
-.muted { color: var(--muted); }
-.section-title { font-size: 20px; font-weight: 800; margin: 8px 0 12px; }
-.page-title { font-size: 26px; font-weight: 900; margin: 10px 0 16px; }
-
-.aside { position: sticky; top: 76px; align-self: start; }
+/* Left aside: page jump menu (desktop/tablet) */
+.aside { position: sticky; top: calc(var(--header-h) + 0px); align-self: start; }
 .aside .link { display: block; padding: 8px 10px; border-radius: 10px; color: #374151; }
 .aside .link.active, .aside .link:hover { background: var(--surface); color: var(--text); }
 
-.chat { position: sticky; top: 76px; align-self: start; height: calc(100vh - 120px); display: flex; flex-direction: column; }
+/* Right aside: chatbot (desktop/tablet) */
+.chat {
+  position: sticky; top: calc(var(--header-h) + 0px);
+  align-self: start; height: calc(100vh - 120px);
+  display: flex; flex-direction: column;
+}
 .chat-log { flex: 1; overflow: auto; border: 1px solid var(--border); border-radius: 12px; padding: 10px; background: #fff; }
 .msg { margin: 8px 0; padding: 10px 12px; border-radius: 12px; max-width: 85%; }
 .msg.user { background: var(--surface); align-self: flex-end; }
@@ -77,77 +111,101 @@ section, .card, .section, [data-scroll-target] {
 .chat-input button { padding: 10px 14px; border-radius: 10px; border: 0; background: var(--brand); color: #fff; cursor: pointer; }
 .chat-input button:disabled { opacity: .6; cursor: not-allowed; }
 
-.slider { position: relative; overflow: hidden; border-radius: 14px; }
-.slides { display: flex; transition: transform .4s ease; }
-.slide { min-width: 100%; max-height: 420px; display: grid; place-items: center; background: #ddd; }
-.slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.slider-controls { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; }
-.dot { width: 10px; height: 10px; border-radius: 999px; background: rgba(255,255,255,.65); border: 1px solid rgba(0,0,0,.2); }
-.dot.active { background: var(--brand); }
-
-.grid { display: grid; gap: 12px; }
-.grid.cols-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
-.grid.cols-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+/* Tablet-down: single column, hide left aside, move chat under main */
 @media (max-width: 800px) {
-  .grid.cols-2, .grid.cols-3 { grid-template-columns: 1fr; }
-}
-.table { width: 100%; border-collapse: collapse; }
-.table th, .table td { border-bottom: 1px solid var(--border); padding: 10px; text-align: left; }
-
-.footer { border-top: 1px solid var(--border); padding: 28px 0; margin-top: 40px; color: #6b7280; font-size: 14px; }
-
-/* === Mobile layout tweaks (append at end of file) === */
-
-/* Make sure green buttons (e.g., Save to Server) have a color */
-:root{
-  --success: var(--ok, #16a34a);
-}
-
-/* Anchor jump offset so sticky header doesn't cover section titles */
-.section{ scroll-margin-top: 76px; }
-
-/* We do NOT want to hide the assistant on mobile.
-   Your earlier @media (max-width:1199px){ .chat{display:none} } hides it.
-   Override it below (this comes later in the file, so it wins). */
-@media (max-width: 800px){
-  /* Hide the left jump menu on mobile */
-  .aside{ display: none; }
-
-  /* Single column already set; ensure assistant shows under main */
-  .chat{
-    display: block !important;   /* override earlier display:none */
-    position: static;            /* not sticky on mobile */
-    top: auto;
-    height: auto;                /* allow natural height */
-    margin-top: 12px;            /* breathing room below main */
+  .main-grid { grid-template-columns: 1fr; }
+  :root { --header-h: 68px; } /* adjust if mobile header differs */
+  .aside { display: none; }   /* requested: no left jump menu on mobile */
+  .chat {
+    display: block; position: static; top: auto;
+    height: auto; margin-top: 12px;
   }
 }
 
-.grid.home-teasers,
-.home-teasers{
-  display: grid;
-  grid-template-columns: 1fr !important; /* override any cols-2/cols-3 */
-  gap: 16px;
-}
+/* ---------- Cards / sections / tables ---------- */
+.card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+.muted { color: var(--muted); }
+.section-title { font-size: 20px; font-weight: 800; margin: 8px 0 12px; }
+.page-title { font-size: 26px; font-weight: 900; margin: 10px 0 16px; }
 
-.home-teasers{
-  /* responsive grid like other pages */
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { border-bottom: 1px solid var(--border); padding: 10px; text-align: left; }
+
+/* ---------- Slider ---------- */
+.slider { position: relative; overflow: hidden; border-radius: 14px; background: #000; } /* black bg to letterbox */
+.slides { display: flex; transition: transform .4s ease; }
+.slide { min-width: 100%; max-height: 420px; display: grid; place-items: center; background: #000; }
+.slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.slider-controls {
+  position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 6px;
+}
+.dot { width: 10px; height: 10px; border-radius: 999px; background: rgba(255,255,255,.65); border: 1px solid rgba(0,0,0,.2); }
+.dot.active { background: var(--brand); }
+
+/* ---------- Grid utilities ---------- */
+.grid { display: grid; gap: 12px; }
+.grid.cols-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.grid.cols-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+@media (max-width: 800px) { .grid.cols-2, .grid.cols-3 { grid-template-columns: 1fr; } }
+
+/* ---------- Footer ---------- */
+.footer { border-top: 1px solid var(--border); padding: 28px 0; margin-top: 40px; color: #6b7280; font-size: 14px; }
+
+/* ---------- Home: teaser cards look like other page cards ---------- */
+.home-teasers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); /* each card occupies one column */
   gap: 16px;
 }
-.home-teasers > *{
-  /* mirror .card styling so they look identical site-wide */
+.home-teasers > * {
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 16px;
-  /* display: flex;
-  flex-direction: column;
-  min-height: 160px; */
 }
-.home-teasers > * .cta{
-  align-self: flex-start; /* button aligns like other cards */
+.home-teasers > * .cta { align-self: flex-start; }
+@media (max-width: 800px) { .home-teasers { grid-template-columns: 1fr; } }
+
+/* ---------- Admin UI (moved out of inline styles) ---------- */
+/* Why: centralize admin styling; right-aside section nav; sticky top tools */
+
+.admin-top {
+  position: sticky; top: 0; z-index: 1000;
+  background: var(--bg, #fff);
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  box-shadow: 0 1px 0 rgba(0,0,0,.03);
 }
-@media (max-width: 800px){
-  .home-teasers{ grid-template-columns: 1fr; }
+.admin-top__inner { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
+.admin-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+.admin-grid {
+  max-width: 1200px; margin: 0 auto; padding: 12px 16px 40px;
+  display: grid; grid-template-columns: minmax(0,1fr) 260px; gap: 16px;
+}
+.admin-content { min-width: 0; }
+.admin-section { margin-top: 14px; scroll-margin-top: var(--header-h); }
+
+.admin-aside { position: relative; }
+.admin-aside__inner {
+  position: sticky; top: calc(var(--header-h) + 14px); /* sits under site header */
+  display: flex; flex-direction: column; gap: 6px;
+}
+.admin-aside__title { font-weight: 800; font-size: 14px; color: #374151; }
+.admin-aside__links { display: flex; flex-direction: column; gap: 4px; }
+.admin-aside__link {
+  display: block; padding: 8px 10px; border-radius: 10px;
+  color: #374151; text-decoration: none; border: 1px solid transparent;
+}
+.admin-aside__link:hover { background: var(--surface, #f6f7fb); }
+.admin-aside__link.is-active {
+  background: var(--surface, #f6f7fb);
+  border-color: var(--border, #e5e7eb);
+  color: var(--text, #111);
+}
+
+/* Hide admin aside on smaller screens */
+@media (max-width: 1024px) {
+  .admin-grid { grid-template-columns: 1fr; }
+  .admin-aside { display: none; }
 }
