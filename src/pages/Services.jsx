@@ -1,4 +1,5 @@
 import { useCRM } from '../crm/CRMProvider.jsx';
+import Markdown from '../components/Markdown.jsx';
 
 function Block({ id, title, body }) {
   return (
@@ -9,16 +10,20 @@ function Block({ id, title, body }) {
   );
 }
 
-export default function Services() {
+export default function Services(){
   const { data } = useCRM();
-  const find = (key) => data.services.find(s=>s.id===key);
+  const items = data.services || [];
   return (
-    <div>
+    <>
       <h1 className="page-title">Services</h1>
-      {['splash','overnight','day','bathing','birthday','social','events','grooming'].map(k=>{
-        const item = find(k);
-        return <Block key={k} id={item.id} title={item.title} body={item.description}/>
-      })}
-    </div>
+      <div className="grid cols-2">
+        {items.map((s, i)=>(
+          <div key={s.id || i} className="card">
+            <h2 className="section-title">{s.title}</h2>
+            <Markdown>{s.description || ''}</Markdown>
+          </div>
+        ))}
+      </div>
+    </>
   );
 }
