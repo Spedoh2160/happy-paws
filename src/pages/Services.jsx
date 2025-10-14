@@ -16,14 +16,14 @@ export default function Services(){
   return (
     <>
       <h1 className="page-title">Services</h1>
-      <div className="grid cols-2">
-        {items.map((s, i)=>(
-          <div key={s.id || i} className="card">
-            <h2 className="section-title">{s.title}</h2>
-            <Markdown>{s.description || ''}</Markdown>
-          </div>
-        ))}
-      </div>
+       
+        {/* One wide card per block, stacked */}
+      {blocks.map((b, i)=>(
+        <section key={b.id || i} id={b.id || `services-${i}`} className="card" style={{ marginTop: i ? 12 : 0 }}>
+          <h2 className="section-title" style={{ marginTop: 0 }}>{b.title}</h2>
+          <Markdown>{b.description || ''}</Markdown>
+        </section>
+      ))}
     </>
   );
 }
