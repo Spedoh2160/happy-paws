@@ -1,6 +1,7 @@
  
 import { Routes, Route, NavLink } from 'react-router-dom';
 import { useState } from 'react';
+import { useEffect } from 'react';
 import { CRMProvider, useCRM } from './crm/CRMProvider.jsx';
 import Home from './pages/Home.jsx'; import Services from './pages/Services.jsx';
 import Training from './pages/Training.jsx'; import About from './pages/About.jsx';
@@ -59,8 +60,25 @@ function FooterVersion(){
   return <div className="container">© {new Date().getFullYear()} Happy Paws — <span className="muted">content: {v}</span></div>;
 }
 
-export default function App(){
-  return (<CRMProvider>
+function App() {
+  useEffect(() => {
+    const header = () => document.querySelector('.header');
+    const offsetScrollTo = (id) => {
+      const el = id && document.getElementById(id);
+      if (!el) return;
+      const h = header()?.getBoundingClientRect().height || 0;
+      const top = window.scrollY + el.getBoundingClientRect().top - h - 8;
+      window.scrollTo({ top, behavior: 'smooth' });
+    };
+
+    const onHash = () => offsetScrollTo(decodeURIComponent(location.hash.replace('#','')));
+    window.addEventListener('hashchange', onHash);
+    // run on first load if URL already has a hash
+    if (location.hash) onHash();
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+ return (<CRMProvider>
     <Header />
     <Routes>
       <Route path="/" element={<Layout pageKey="home" sections={[{id:'intro',label:'Intro'},{id:'mission',label:'Mission'},{id:'quicklinks',label:'Quick Links'}]}><Home/></Layout>} />
@@ -78,3 +96,25 @@ export default function App(){
     <footer className="footer"><FooterVersion/></footer>
   </CRMProvider>);
 }
+export default App;
+ 
+
+/* export default function App(){
+  return (<CRMProvider>
+    <Header />
+    <Routes>
+      <Route path="/" element={<Layout pageKey="home" sections={[{id:'intro',label:'Intro'},{id:'mission',label:'Mission'},{id:'quicklinks',label:'Quick Links'}]}><Home/></Layout>} />
+      <Route path="/services" element={<Layout pageKey="services" sections={[{id:'splash',label:'Splash Parks'},{id:'overnight',label:'Overnight Stays'},{id:'day',label:'Day Options'},{id:'bathing',label:'Self Bathing'},{id:'birthday',label:'Birthday Parties'},{id:'social',label:'Social Areas & 16 Tap'},{id:'events',label:'Events'},{id:'grooming',label:'Full Service Grooming'}]}><Services/></Layout>} />
+      <Route path="/training" element={<Layout pageKey="training" sections={[{id:'group',label:'Group Obedience'},{id:'sport',label:'Sport/AKC/Fun'},{id:'puppy',label:'Puppy University'},{id:'private',label:'Private Lessons'},{id:'staytrain',label:'Stay-N-Train / Day-Train'},{id:'trainers',label:'Meet Trainers & Reviews'}]}><Training/></Layout>} />
+      <Route path="/about" element={<Layout pageKey="about" sections={[{id:'team',label:'Management Team'},{id:'reviews',label:'Reviews'},{id:'different',label:"How We're Different"},{id:'gallery',label:'Photo Gallery'},{id:'mission',label:'Our Mission'},{id:'faqs',label:'FAQs'}]}><About/></Layout>} />
+      <Route path="/contact" element={<Layout pageKey="contact" sections={[{id:'contact',label:'Contact Us'},{id:'reservations',label:'Reservations'}]}><Contact/></Layout>} />
+      <Route path="/jobs" element={<Layout pageKey="jobs" sections={[{id:'careers',label:'Careers'}]}><Jobs/></Layout>} />
+      <Route path="/privacy" element={<Layout pageKey="privacy" sections={[{id:'privacy',label:'Privacy Policy'}]}><Privacy/></Layout>} />
+      <Route path="/credits" element={<Layout pageKey="credits" sections={[{id:'credits',label:'Site Credits'}]}><Credits/></Layout>} />
+      <Route path="/admin" element={<div className="container" style={{padding:'20px 0'}}><Admin/></div>} />
+      <Route path="*" element={<div className="container" style={{padding:'40px 0'}}><h1>404</h1><p>Page not found.</p></div>} />
+      <Route path="/progress" element={<Progress />} />
+    </Routes>
+    <footer className="footer"><FooterVersion/></footer>
+  </CRMProvider>); 
+} */
