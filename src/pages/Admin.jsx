@@ -4,25 +4,6 @@ import { useCRM } from '../crm/CRMProvider.jsx';
 import ImagePicker from '../components/ImagePicker.jsx';
 import GalleryManager from '../components/GalleryManager.jsx';
 
-// ---- Error boundary: prevents blank screen on runtime errors ----
-class ErrorBoundary extends React.Component {
-  constructor(props){ super(props); this.state = { hasError:false, err:null }; }
-  static getDerivedStateFromError(err){ return { hasError:true, err }; }
-  componentDidCatch(err, info){ console.error('Admin error:', err, info); }
-  render(){
-    if (this.state.hasError){
-      return (
-        <div className="card" style={{maxWidth:900, margin:'40px auto'}}>
-          <h2>Admin crashed</h2>
-          <p className="muted">Check your inputs or missing fields. Details are in the browser console.</p>
-          <pre style={{whiteSpace:'pre-wrap'}}>{String(this.state.err)}</pre>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
-
 function Section({ id, title, children }) {
   return (
     <section id={id} className="card admin-section">
@@ -35,7 +16,7 @@ function Section({ id, title, children }) {
 const PAGES = ['home', 'services', 'training', 'about', 'contact', 'jobs', 'privacy', 'credits'];
 const successBg = 'var(--success, #2e7d32)';
 const dangerBg  = 'var(--danger, #c62828)';
-const FN_BASE = import.meta.env.DEV ? 'http://localhost:8888' : '';
+const FN_BASE   = import.meta.env.DEV ? 'http://localhost:8888' : '';
 
 function downloadContentJson(text) {
   const blob = new Blob([text], { type: 'application/json' });
@@ -43,59 +24,17 @@ function downloadContentJson(text) {
   const a = document.createElement('a'); a.href = url; a.download = 'content.json'; a.click();
   URL.revokeObjectURL(url);
 }
-
-// robust clone for older browsers
 const clone = (v) => (typeof structuredClone === 'function' ? structuredClone(v) : JSON.parse(JSON.stringify(v || {})));
 
 export default function Admin() {
-  const { data = {}, setData, reset, export: exportJson, import: importJson } = useCRM();
-
-  // Auth
   const [authed, setAuthed] = useState(false);
   const [pass, setPass] = useState('');
   const expected = import.meta.env.VITE_ADMIN_PASS || 'admin123';
-  function login(e) { e.preventDefault(); if (pass === expected) setAuthed(true); else alert('Incorrect password'); }
 
-  // Deep update
-  function update(path, value) {
-    setData(prev => {
-      const copy = clone(prev);
-      const segs = path.split('.');
-      let cur = copy;
-      for (let i = 0; i < segs.length - 1; i++) {
-        const k = segs[i];
-        const nextIsIndex = Number.isInteger(+segs[i + 1]);
-        if (cur[k] == null) cur[k] = nextIsIndex ? [] : {};
-        cur = cur[k];
-      }
-      cur[segs[segs.length - 1]] = value;
-      return copy;
-    });
-  }
-
-  // Save to server
-  const [busy, setBusy] = useState(false);
-  async function saveToServer() {
-    try {
-      setBusy(true);
-      const text = exportJson(); JSON.parse(text);
-      const res = await fetch(`${FN_BASE}/.netlify/functions/cms`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-Key': pass },
-        body: text
-      });
-      if (!res.ok) throw new Error(await res.text());
-      alert('Saved for everyone.');
-    } catch (e) {
-      alert(`Save failed: ${e?.message || e}`);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  function saveToBrowser() {
-    try { localStorage.setItem('crmData/v1', JSON.stringify(data)); alert('Saved to this browser.'); }
-    catch { alert('Save failed (localStorage).'); }
+  function login(e) {
+    e.preventDefault();
+    if (pass === expected) setAuthed(true);
+    else alert('Incorrect password');
   }
 
   if (!authed) {
@@ -117,15 +56,62 @@ export default function Admin() {
     );
   }
 
-  // Sticky nav
+  return <AdminApp pass={pass} />;
+}
+
+function AdminApp({ pass }) {
+  const { data = {}, setData, reset, export: exportJson, import: importJson } = useCRM();
+
+  // Deep update (immutable)
+  function update(path, value) {
+    setData(prev => {
+      const copy = clone(prev);
+      const segs = path.split('.');
+      let cur = copy;
+      for (let i = 0; i < segs.length - 1; i++) {
+        const k = segs[i];
+        const nextIsIndex = Number.isInteger(+segs[i + 1]);
+        if (cur[k] == null) cur[k] = nextIsIndex ? [] : {};
+        cur = cur[k];
+      }
+      cur[segs[segs.length - 1]] = value;
+      return copy;
+    });
+  }
+
+  // Save to server (Netlify Function)
+  const [busy, setBusy] = useState(false);
+  async function saveToServer() {
+    try {
+      setBusy(true);
+      const text = exportJson(); JSON.parse(text);
+      const res = await fetch(`${FN_BASE}/.netlify/functions/cms`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Key': pass },
+        body: text
+      });
+      if (!res.ok) throw new Error(await res.text());
+      alert('Saved for everyone.');
+    } catch (e) {
+      alert(`Save failed: ${e?.message || e}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+  function saveToBrowser() {
+    try { localStorage.setItem('crmData/v1', JSON.stringify(data)); alert('Saved to this browser.'); }
+    catch { alert('Save failed (localStorage).'); }
+  }
+
+  // Right-aside nav + active section
   const navItems = useMemo(() => ([
-    { id: 'seo-global',        label: 'SEO Global' },
-    { id: 'seo-pages',         label: 'SEO Pages' },
-    { id: 'appearance-global', label: 'Appearance Global' },
-    { id: 'appearance-pages',  label: 'Appearance Per Page' },
+    { id: 'seo-global',        label: 'SEO – Global' },
+    { id: 'seo-pages',         label: 'SEO – Pages' },
+    { id: 'appearance-global', label: 'Appearance – Global' },
+    { id: 'appearance-pages',  label: 'Appearance – Per Page' },
     { id: 'site-info',         label: 'Site Info' },
-    { id: 'home-hero',         label: 'Home Hero' },
-    { id: 'home-teasers',      label: 'Home Teasers' },
+    { id: 'home-hero',         label: 'Home – Hero' },
+    { id: 'home-teasers',      label: 'Home – Teasers' },
     { id: 'services',          label: 'Services' },
     { id: 'training',          label: 'Training' },
     { id: 'about',             label: 'About' },
@@ -148,62 +134,46 @@ export default function Admin() {
     return () => io.disconnect();
   }, []);
 
-  // ---- SAFE helpers for spreads (prevent crashes on undefined) ----
+  // Safe snapshots (avoid undefined spreads)
   const seoPagesSafe   = data.seo?.pages   || {};
   const themePagesSafe = data.theme?.pages || {};
   const teasersSafe    = data.home?.missionTeasers || [];
-  const teamSafe       = data.about?.team  || [];
-  const faqsSafe       = data.about?.faqs  || [];
-  const servicesSafe   = data.services     || [];
-  const trainingSafe   = data.training     || [];
+  const servicesSafe   = data.services || [];
+  const trainingSafe   = data.training || [];
+  const teamSafe       = data.about?.team || [];
+  const faqsSafe       = data.about?.faqs || [];
+
+  const setSeoPage   = (k, patch) => update('seo.pages',   { ...seoPagesSafe,   [k]: { ...(seoPagesSafe[k] || {}),   ...patch } });
+  const setThemePage = (k, patch) => update('theme.pages', { ...themePagesSafe, [k]: { ...(themePagesSafe[k] || {}), ...patch } });
 
   return (
-    <ErrorBoundary>
-      <div className="admin-wrap">
-        {/* Sticky top: heading + toolbar + nav */}
-        <div className="admin-top">
-          <div className="admin-top__inner">
-            <h1 className="page-title" style={{ margin: 0 }}>Admin CMS</h1>
-
-            <div className="admin-toolbar">
-              <button className="cta" onClick={() => navigator.clipboard.writeText(exportJson())}>Copy Export JSON</button>
-              <button onClick={() => {
-                const json = prompt('Paste JSON');
-                if (json) { try { importJson(json); alert('Imported.'); } catch { alert('Invalid JSON'); } }
-              }}>Import JSON</button>
-              <button onClick={() => downloadContentJson(exportJson())}>Download content.json</button>
-              <button onClick={saveToBrowser}>Save to Browser</button>
-              <button
-                style={{ background: successBg, color:'#fff', border:0, padding:'10px 14px', borderRadius:10 }}
-                onClick={saveToServer}
-                disabled={busy}
-                aria-busy={busy ? 'true' : 'false'}
-              >
-                {busy ? 'Saving…' : 'Save to Server'}
-              </button>
-              <button
-                style={{ background: dangerBg, color:'#fff', border:0, padding:'10px 14px', borderRadius:10 }}
-                onClick={() => { if (confirm('Reset to defaults?')) reset(); }}
-              >
-                Reset
-              </button>
-            </div>
-
-            <nav className="admin-nav" aria-label="Admin sections">
-              {navItems.map(({ id, label }) => (
-                <a
-                  key={id}
-                  href={`#${id}`}
-                  className={`admin-nav__link ${activeId === id ? 'is-active' : ''}`}
-                >
-                  {label}
-                </a>
-              ))}
-            </nav>
+    <div className="admin-shell">
+      {/* Sticky top header + toolbar */}
+      <div className="admin-top">
+        <div className="admin-top__inner">
+          <h1 className="page-title" style={{ margin: 0 }}>Admin CMS</h1>
+          <div className="admin-toolbar">
+            <button className="cta" onClick={() => navigator.clipboard.writeText(exportJson())}>Copy Export JSON</button>
+            <button onClick={() => {
+              const json = prompt('Paste JSON');
+              if (json) { try { importJson(json); alert('Imported.'); } catch { alert('Invalid JSON'); } }
+            }}>Import JSON</button>
+            <button onClick={() => downloadContentJson(exportJson())}>Download content.json</button>
+            <button onClick={saveToBrowser}>Save to Browser</button>
+            <button
+              style={{ background: successBg, color:'#fff', border:0, padding:'10px 14px', borderRadius:10 }}
+              onClick={saveToServer} disabled={busy} aria-busy={busy ? 'true' : 'false'}
+            >{busy ? 'Saving…' : 'Save to Server'}</button>
+            <button
+              style={{ background: dangerBg, color:'#fff', border:0, padding:'10px 14px', borderRadius:10 }}
+              onClick={() => { if (confirm('Reset to defaults?')) reset(); }}
+            >Reset</button>
           </div>
         </div>
+      </div>
 
-        {/* Content */}
+      {/* Main 2-col layout: content + right aside nav */}
+      <div className="admin-grid">
         <div className="admin-content">
           <Section id="seo-global" title="SEO – Global">
             <div className="grid cols-2">
@@ -218,22 +188,13 @@ export default function Admin() {
           <Section id="seo-pages" title="SEO – Pages">
             <div className="grid cols-2">
               {PAGES.map((k) => {
-                const p = data.seo?.pages?.[k] || { title: '', description: '', image: '' };
+                const p = seoPagesSafe[k] || { title: '', description: '', image: '' };
                 return (
                   <div key={k} className="card">
                     <strong style={{ display: 'block', marginBottom: 8 }}>{k}</strong>
-                    <input
-                      placeholder="Title" value={p.title}
-                      onChange={e => update('seo.pages', { ...seoPagesSafe, [k]: { ...p, title: e.target.value } })}
-                    />
-                    <input
-                      placeholder="Description" value={p.description}
-                      onChange={e => update('seo.pages', { ...seoPagesSafe, [k]: { ...p, description: e.target.value } })}
-                    />
-                    <input
-                      placeholder="Social Image URL" value={p.image}
-                      onChange={e => update('seo.pages', { ...seoPagesSafe, [k]: { ...p, image: e.target.value } })}
-                    />
+                    <input placeholder="Title" value={p.title} onChange={e => setSeoPage(k, { title: e.target.value })}/>
+                    <input placeholder="Description" value={p.description} onChange={e => setSeoPage(k, { description: e.target.value })}/>
+                    <input placeholder="Social Image URL" value={p.image} onChange={e => setSeoPage(k, { image: e.target.value })}/>
                   </div>
                 );
               })}
@@ -264,20 +225,15 @@ export default function Admin() {
                 return (
                   <div key={k} className="card">
                     <strong style={{ display: 'block', marginBottom: 8 }}>{k}</strong>
-                    <label>Color <input type="color" value={t.color || '#ffffff'}
-                      onChange={e => update('theme.pages', { ...themePagesSafe, [k]: { ...t, color: e.target.value } })}/></label>
-                    <label>Size <input value={t.size}
-                      onChange={e => update('theme.pages', { ...themePagesSafe, [k]: { ...t, size: e.target.value } })}/></label>
-                    <label>Repeat <input value={t.repeat}
-                      onChange={e => update('theme.pages', { ...themePagesSafe, [k]: { ...t, repeat: e.target.value } })}/></label>
-                    <label>Position <input value={t.position}
-                      onChange={e => update('theme.pages', { ...themePagesSafe, [k]: { ...t, position: e.target.value } })}/></label>
-                    <label>Attachment <input value={t.attachment}
-                      onChange={e => update('theme.pages', { ...themePagesSafe, [k]: { ...t, attachment: e.target.value } })}/></label>
+                    <label>Color <input type="color" value={t.color || '#ffffff'} onChange={e => setThemePage(k, { color: e.target.value })}/></label>
+                    <label>Size <input value={t.size || ''} onChange={e => setThemePage(k, { size: e.target.value })}/></label>
+                    <label>Repeat <input value={t.repeat || ''} onChange={e => setThemePage(k, { repeat: e.target.value })}/></label>
+                    <label>Position <input value={t.position || ''} onChange={e => setThemePage(k, { position: e.target.value })}/></label>
+                    <label>Attachment <input value={t.attachment || ''} onChange={e => setThemePage(k, { attachment: e.target.value })}/></label>
                     <ImagePicker
                       label="Background Image"
                       items={[{ url: t.imageUrl || '', alt: '' }]}
-                      onChange={(next) => update('theme.pages', { ...themePagesSafe, [k]: { ...t, imageUrl: next?.[0]?.url || '' } })}
+                      onChange={(next) => setThemePage(k, { imageUrl: next?.[0]?.url || '' })}
                       allowUpload multiple={false}
                       resize={{ maxWidth: 2400, maxHeight: 2400, quality: 0.85, format: 'auto' }}
                     />
@@ -313,11 +269,11 @@ export default function Admin() {
             <div className="grid cols-3" style={{ marginTop: 8 }}>
               {teasersSafe.map((t, i) => (
                 <div key={i} className="card">
-                  <input placeholder="Title" value={t.title}
+                  <input placeholder="Title" value={t.title || ''}
                     onChange={e => { const copy=[...teasersSafe]; copy[i] = { ...copy[i], title:e.target.value }; update('home.missionTeasers', copy); }}/>
-                  <input placeholder="Excerpt" value={t.excerpt}
+                  <input placeholder="Excerpt" value={t.excerpt || ''}
                     onChange={e => { const copy=[...teasersSafe]; copy[i] = { ...copy[i], excerpt:e.target.value }; update('home.missionTeasers', copy); }}/>
-                  <input placeholder="Link" value={t.link}
+                  <input placeholder="Link" value={t.link || ''}
                     onChange={e => { const copy=[...teasersSafe]; copy[i] = { ...copy[i], link:e.target.value }; update('home.missionTeasers', copy); }}/>
                   <button onClick={() => update('home.missionTeasers', teasersSafe.filter((_, x) => x !== i))}>Remove</button>
                 </div>
@@ -360,10 +316,7 @@ export default function Admin() {
             </label>
 
             <h3 style={{ marginTop: 12 }}>Photo Gallery</h3>
-            <GalleryManager
-              value={data.about?.gallery || []}
-              onChange={(next) => update('about.gallery', next)}
-            />
+            <GalleryManager value={data.about?.gallery || []} onChange={(next) => update('about.gallery', next)} />
 
             <h3 style={{ marginTop: 12 }}>Team</h3>
             <div className="grid cols-2">
@@ -431,33 +384,62 @@ export default function Admin() {
           </Section>
         </div>
 
-        {/* Scoped styles for Admin UI */}
-        <style>{`
-          .admin-wrap { --admin-top-h: 120px; }
-          .admin-top {
-            position: sticky; top: 0; z-index: 1000;
-            background: var(--bg, #fff);
-            border-bottom: 1px solid var(--border, #e5e7eb);
-            box-shadow: 0 1px 0 rgba(0,0,0,.03);
-          }
-          .admin-top__inner { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
-          .admin-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-          .admin-nav { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0 2px; scrollbar-width: thin; }
-          .admin-nav__link {
-            display: inline-block; white-space: nowrap;
-            padding: 8px 10px; border-radius: 10px; color: inherit; text-decoration: none;
-            border: 1px solid transparent;
-          }
-          .admin-nav__link:hover { background: var(--surface, #f6f7fb); }
-          .admin-nav__link.is-active { background: var(--surface, #f6f7fb); border-color: var(--border, #e5e7eb); }
-          .admin-content { max-width: 1200px; margin: 0 auto; padding: 12px 16px 40px; }
-          .admin-section { margin-top: 14px; scroll-margin-top: 120px; }
-          @media (max-width: 768px){
-            .admin-wrap { --admin-top-h: 148px; }
-            .admin-section { scroll-margin-top: 148px; }
-          }
-        `}</style>
+        {/* Right-aside jump nav */}
+        <aside className="admin-aside" aria-label="Jump to Section">
+          <div className="admin-aside__inner card">
+            <div className="admin-aside__title">Sections</div>
+            <div className="admin-aside__links">
+              {navItems.map(({ id, label }) => (
+                <a key={id} href={`#${id}`} className={`admin-aside__link ${activeId === id ? 'is-active' : ''}`}>{label}</a>
+              ))}
+            </div>
+            <hr style={{ border:0, borderTop:'1px solid var(--border)', margin:'10px 0' }} />
+            <a href="#seo-global" className="admin-aside__link">↑ Back to top</a>
+          </div>
+        </aside>
       </div>
-    </ErrorBoundary>
+
+      {/* Scoped styles */}
+      <style>{`
+        html { scroll-behavior: smooth; }
+        .admin-top {
+          position: sticky; top: 0; z-index: 1000;
+          background: var(--bg, #fff);
+          border-bottom: 1px solid var(--border, #e5e7eb);
+          box-shadow: 0 1px 0 rgba(0,0,0,.03);
+        }
+        .admin-top__inner { max-width: 1200px; margin: 0 auto; padding: 12px 16px; }
+        .admin-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+        .admin-shell { }
+        .admin-grid {
+          max-width: 1200px; margin: 0 auto; padding: 12px 16px 40px;
+          display: grid; grid-template-columns: minmax(0,1fr) 260px; gap: 16px;
+        }
+        .admin-content { min-width: 0; }
+        .admin-section { margin-top: 14px; scroll-margin-top: 120px; }
+
+        .admin-aside { position: relative; }
+        .admin-aside__inner {
+          position: sticky; top: 90px;
+          display: flex; flex-direction: column; gap: 6px;
+        }
+        .admin-aside__title { font-weight: 800; font-size: 14px; color: #374151; }
+        .admin-aside__links { display: flex; flex-direction: column; gap: 4px; }
+        .admin-aside__link {
+          display: block; padding: 8px 10px; border-radius: 10px;
+          color: #374151; text-decoration: none; border: 1px solid transparent;
+        }
+        .admin-aside__link:hover { background: var(--surface, #f6f7fb); }
+        .admin-aside__link.is-active {
+          background: var(--surface, #f6f7fb); border-color: var(--border, #e5e7eb); color: var(--text, #111);
+        }
+
+        @media (max-width: 1024px){
+          .admin-grid { grid-template-columns: 1fr; }
+          .admin-aside { display: none; }
+        }
+      `}</style>
+    </div>
   );
 }
