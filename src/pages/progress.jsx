@@ -6,6 +6,29 @@ export default function Progress(){
     <div className="progress-page">
       <h1>🌱 Site Progress Updates</h1>
 
+      <div classname="update">
+        <div className="date">Oct 16, 2025 9:00 a.m. to 1:00 p.m.</div>
+        <ul>
+          <li>Tested all CMS pages</li>
+          <li>Restructured and added about images.</li>
+          <li>Repaired layout and structure issues.</li>
+          <li>Will wait for feedback from client.</li>
+          <li>Still need to adjust the top margin for proper landing.</li>
+
+        </ul>
+      </div>  
+
+      <div className="update">
+        <div className="date">Oct 15, 2025 9:00 a.m. to 3:00 p.m.</div>
+        <ul>
+          <li>Recreated CMS layout</li>
+          <li>Restructured and added about images.</li>
+          <li>Tested tablet and phone layouts. </li>
+          <li>Requested feedback from client.</li>
+          <li>Still need to adjust the top margin for proper landing.</li>
+
+        </ul>
+      </div>      
       <div className="update">
         <div className="date">Oct 2, 2025 10:00 a.m. to 2:00 p.m.</div>
         <ul>
