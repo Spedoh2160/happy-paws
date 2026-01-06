@@ -6,7 +6,7 @@ export default function Progress(){
     <div className="progress-page">
       <h1>🌱 Site Progress Updates</h1>
 
-      <div classname="update">
+      <div className="update">
         <div className="date">Oct 16, 2025 9:00 a.m. to 1:00 p.m.</div>
         <ul>
           <li>Tested all CMS pages</li>
