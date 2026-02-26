@@ -209,7 +209,6 @@ function App() {
                 pageKey="about"
                 sections={[
                   {id:'team',label:'Management Team'},
-                  {id:'reviews',label:'Reviews'},
                   {id:'different',label:'What Sets Meadow Ridge Apart?'},
                   {id:'gallery',label:'Photo Gallery'},
                   {id:'mission',label:'Our Mission'},
