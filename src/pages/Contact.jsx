@@ -16,7 +16,7 @@ export default function Contact() {
           <input required name="name" placeholder="Your name"/>
           <input required type="email" name="email" placeholder="Email"/>
           <input name="phone" placeholder="Phone"/>
-          <input name="dog" placeholder="Dog's name"/>
+          <input name="dog" placeholder="Pet's name"/>
           <textarea name="message" placeholder="How can we help?" rows="4" style={{gridColumn:'1/-1'}}></textarea>
           <button className="cta" type="submit" style={{gridColumn:'1/-1'}}>Send</button>
         </form>
