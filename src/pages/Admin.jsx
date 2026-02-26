@@ -103,6 +103,7 @@ function AdminApp({ pass }) {
     { id: 'home-hero',         label: 'Home – Hero' },
     { id: 'home-teasers',      label: 'Home – Teasers' },
     { id: 'services',          label: 'Services (Text Blocks)' },
+    { id: 'prices',            label: 'Prices – Page' }, 
     { id: 'training',          label: 'Training (Text Blocks)' },
     { id: 'about',             label: 'About (Text Blocks + Gallery)' },
     { id: 'contact',           label: 'Contact (Text Blocks)' },
@@ -290,6 +291,18 @@ function AdminApp({ pass }) {
             <button onClick={() => update('home.missionTeasers', [...(data.home?.missionTeasers || []), { title:'', excerpt:'', link:'' }])}>Add Teaser</button>
           </Section>
 
+          <Section id="prices" title="Prices – Page">
+          <p className="muted" style={{ marginTop: 0 }}>
+            The Prices page is generated from your <strong>Services</strong> entries.
+            Update each service’s <code>Starting At</code>, tiered prices, and price details in the Services section below.
+          </p>
+
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <a className="cta" href="#services">Go to Services Pricing</a>
+            <a href="/prices" target="_blank" rel="noreferrer">Open Prices Page</a>
+          </div>
+        </Section>
+
           {/* Services (Text Blocks per service) */}
           <Section id="services" title="Services – Text Blocks">
             <div className="grid cols-2">
@@ -310,8 +323,9 @@ function AdminApp({ pass }) {
             <button onClick={() => update('services', [ ...(data.services || []), { id:'new', title:'New', description:'' } ])}>Add Service</button>
           </Section>
 
+
            
-<Section id="services" title="Services – Text Blocks + Prices">
+<Section id="services" title="Services – Text Blocks">
   <div className="grid cols-2">
     {(data.services || []).map((s, i) => (
       <div key={s.id || i} className="card">
