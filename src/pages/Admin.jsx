@@ -413,6 +413,58 @@ function AdminApp({ pass }) {
             </div>
             <button onClick={() => update('about.team', [ ...(data.about?.team || []), { name:'', role:'', photo:'', bio:'' } ])}>Add Team Member</button>
 
+            <h3 style={{ marginTop: 12 }}>What Sets Meadow Ridge Apart?</h3>
+            <div className="grid cols-2">
+              {(data.about?.different || []).map((d, i) => (
+                <div key={i} className="card">
+                  <label>
+                    Title
+                    <input
+                      value={d?.title || ''}
+                      onChange={(e) => {
+                        const c = clone(data.about?.different || []);
+                        c[i] = { ...(c[i] || {}), title: e.target.value };
+                        update('about.different', c);
+                      }}
+                    />
+                  </label>
+
+                  <TextBlockEditor
+                    label="Description (Markdown)"
+                    value={d?.body || ''}
+                    onChange={(v) => {
+                      const c = clone(data.about?.different || []);
+                      c[i] = { ...(c[i] || {}), body: v };
+                      update('about.different', c);
+                    }}
+                    rows={5}
+                  />
+
+                  <button
+                    onClick={() =>
+                      update(
+                        'about.different',
+                        (data.about?.different || []).filter((_, x) => x !== i)
+                      )
+                    }
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() =>
+                update('about.different', [
+                  ...(data.about?.different || []),
+                  { title: '', body: '' },
+                ])
+              }
+            >
+              Add “Apart” Item
+            </button>
+              
             <h3 style={{ marginTop: 12 }}>FAQs</h3>
             {(data.about?.faqs || []).map((f, i) => (
               <div key={i} className="card">

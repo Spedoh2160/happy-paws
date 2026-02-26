@@ -1,4 +1,5 @@
 // path: src/pages/About.jsx
+import { useMemo } from 'react';
 import { useCRM } from '../crm/CRMProvider.jsx';
 import Markdown from '../components/Markdown.jsx';
 import GallerySlider from '../components/GallerySlider.jsx';
@@ -8,9 +9,7 @@ function normalizeGallery(arr) {
   return arr
     .map((it) => {
       if (!it) return null;
-      if (typeof it === 'string') {
-        return { url: it, caption: filenameToCaption(it) };
-      }
+      if (typeof it === 'string') return { url: it, caption: filenameToCaption(it) };
       if (typeof it === 'object') {
         const url = it.url || it.src || '';
         if (!url) return null;
@@ -21,6 +20,7 @@ function normalizeGallery(arr) {
     })
     .filter(Boolean);
 }
+
 function filenameToCaption(url = '') {
   try {
     const name = url.split('/').pop() || '';
@@ -59,21 +59,43 @@ const MEADOW_RIDGE_APART = [
   },
 ];
 
+function normalizeApartItems(differentRaw) {
+  if (!Array.isArray(differentRaw)) return [];
+  return differentRaw
+    .map((it) => {
+      if (!it) return null;
+
+      // Old format: ["Some bullet", ...]
+      if (typeof it === 'string') {
+        const title = it.trim();
+        return title ? { title, body: '' } : null;
+      }
+
+      // New format: [{ title, body }]
+      if (typeof it === 'object') {
+        const title = String(it.title || it.heading || '').trim();
+        const body = String(it.body || it.description || '').trim();
+        if (!title && !body) return null;
+        return { title: title || 'More', body };
+      }
+
+      return null;
+    })
+    .filter(Boolean);
+}
+
 export default function About() {
   const { data } = useCRM();
 
   const mission = data?.about?.mission || '';
   const team = Array.isArray(data?.about?.team) ? data.about.team : [];
-  const different = Array.isArray(data?.about?.different) ? data.about.different : [];
   const faqs = Array.isArray(data?.about?.faqs) ? data.about.faqs : [];
 
-  const galleryItems = normalizeGallery(data?.about?.gallery);
+  const galleryItems = useMemo(() => normalizeGallery(data?.about?.gallery), [data?.about?.gallery]);
 
-  // Prefer CMS-provided "different" if present; otherwise use the Meadow Ridge list above.
-  const apartItems =
-    different.length > 0
-      ? different.map((d) => ({ title: String(d || '').trim(), body: '' })).filter((x) => x.title)
-      : MEADOW_RIDGE_APART;
+  const differentRaw = Array.isArray(data?.about?.different) ? data.about.different : [];
+  const apartItems = useMemo(() => normalizeApartItems(differentRaw), [differentRaw]);
+  const finalApartItems = apartItems.length > 0 ? apartItems : MEADOW_RIDGE_APART;
 
   return (
     <div>
@@ -107,22 +129,26 @@ export default function About() {
       )}
 
       {/* What sets Meadow Ridge apart */}
-      {apartItems.length > 0 && (
+      {finalApartItems.length > 0 && (
         <section id="different" className="card" style={{ marginTop: 12 }}>
           <h2 className="section-title">What Sets Meadow Ridge Apart?</h2>
 
           <div className="grid cols-2" style={{ marginTop: 8 }}>
-            {apartItems.map((it, i) => (
+            {finalApartItems.map((it, i) => (
               <div key={i} className="card">
-                <strong style={{ display: 'block' }}>{it.title}</strong>
-                {it.body ? <div className="muted" style={{ marginTop: 6 }}>{it.body}</div> : null}
+                {it.title ? <strong style={{ display: 'block' }}>{it.title}</strong> : null}
+                {it.body ? (
+                  <div style={{ marginTop: 6 }}>
+                    <Markdown>{it.body}</Markdown>
+                  </div>
+                ) : null}
               </div>
             ))}
           </div>
         </section>
       )}
 
-      {/* Photo Gallery SLIDESHOW (auto/controls handled by component) */}
+      {/* Photo Gallery */}
       {galleryItems.length > 0 && (
         <section id="gallery" className="card" style={{ marginTop: 12 }}>
           <h2 className="section-title">Photo Gallery</h2>
@@ -130,7 +156,7 @@ export default function About() {
         </section>
       )}
 
-      {/* Mission (Markdown) */}
+      {/* Mission */}
       {mission && (
         <section id="mission" className="card" style={{ marginTop: 12 }}>
           <h2 className="section-title">Our Mission</h2>
@@ -138,7 +164,7 @@ export default function About() {
         </section>
       )}
 
-      {/* FAQs (answers support Markdown) */}
+      {/* FAQs */}
       {faqs.length > 0 && (
         <section id="faqs" className="card" style={{ marginTop: 12 }}>
           <h2 className="section-title">FAQs</h2>
