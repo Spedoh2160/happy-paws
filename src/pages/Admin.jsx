@@ -295,7 +295,7 @@ function AdminApp({ pass }) {
             <button onClick={() => update('services', [ ...(data.services || []), { id:'new', title:'New', description:'' } ])}>Add Service</button>
           </Section>
 
-          // path: src/pages/Admin.jsx (replace ONLY the Services <Section ...> block)
+           
 <Section id="services" title="Services – Text Blocks + Prices">
   <div className="grid cols-2">
     {(data.services || []).map((s, i) => (
