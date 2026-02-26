@@ -210,7 +210,7 @@ function App() {
                 sections={[
                   {id:'team',label:'Management Team'},
                   {id:'reviews',label:'Reviews'},
-                  {id:'different',label:"How We're Different"},
+                  {id:'different',label:'What Sets Meadow Ridge Apart?'},
                   {id:'gallery',label:'Photo Gallery'},
                   {id:'mission',label:'Our Mission'},
                   {id:'faqs',label:'FAQs'},

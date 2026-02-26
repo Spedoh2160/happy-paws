@@ -31,17 +31,49 @@ function filenameToCaption(url = '') {
   }
 }
 
+const MEADOW_RIDGE_APART = [
+  {
+    title: 'Advanced Air Purification in Every Animal Area',
+    body:
+      'With Aerapy air systems installed throughout all pet-access spaces, we actively reduce airborne contaminants, odors, and pathogens — promoting a cleaner, healthier environment for pets and staff alike.',
+  },
+  {
+    title: 'Commercial-Grade Outdoor Play Surfaces',
+    body:
+      'All exterior play yards feature commercial-grade turf designed for durability, drainage, sanitation efficiency, and year-round safety.',
+  },
+  {
+    title: 'VIP Presidential Private Suites',
+    body:
+      'Our premium private suites include in-room televisions and enhanced comfort features, offering a low-stress, luxury boarding experience for discerning pet parents.',
+  },
+  {
+    title: 'Social Lounge with 16-Tap Beer & Wine System',
+    body:
+      'Guests enjoy a thoughtfully designed social space featuring a 16-tap self-serve beer and wine wall paired with theatre-quality popcorn — creating a hospitality experience unlike traditional kennels.',
+  },
+  {
+    title: 'Heated Indoor Splash Park and Outdoor Splash Park',
+    body:
+      'Our heated splash park allows for safe, supervised water enrichment year-round, supporting exercise, mental stimulation, and controlled energy release.',
+  },
+];
+
 export default function About() {
   const { data } = useCRM();
 
   const mission = data?.about?.mission || '';
   const team = Array.isArray(data?.about?.team) ? data.about.team : [];
-  const reviews = Array.isArray(data?.about?.reviews) ? data.about.reviews : [];
   const different = Array.isArray(data?.about?.different) ? data.about.different : [];
   const faqs = Array.isArray(data?.about?.faqs) ? data.about.faqs : [];
 
-  // Slider items with captions; "contain" to keep dogs centered within frame
   const galleryItems = normalizeGallery(data?.about?.gallery);
+
+  // Prefer CMS-provided "different" if present; otherwise use the Meadow Ridge list above.
+  const apartItems =
+    different.length > 0
+      ? different.map((d) => ({ title: String(d || '').trim(), body: '' })).filter((x) => x.title)
+      : MEADOW_RIDGE_APART;
 
   return (
     <div>
@@ -74,29 +106,19 @@ export default function About() {
         </section>
       )}
 
-      {/* Reviews */}
-      {reviews.length > 0 && (
-        <section id="reviews" className="card" style={{ marginTop: 12 }}>
-          <h2 className="section-title">Reviews</h2>
-          <ul style={{ margin: 0, paddingLeft: '1.2rem' }}>
-            {reviews.map((r, i) => (
-              <li key={i} style={{ margin: '.35rem 0' }}>
-                {r?.text ? <em>“{r.text}”</em> : null} {r?.name ? <span className="muted">— {r.name}</span> : null}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* How we're different */}
-      {different.length > 0 && (
+      {/* What sets Meadow Ridge apart */}
+      {apartItems.length > 0 && (
         <section id="different" className="card" style={{ marginTop: 12 }}>
-          <h2 className="section-title">How We're Different</h2>
-          <ul style={{ margin: 0, paddingLeft: '1.2rem' }}>
-            {different.map((d, i) => (
-              <li key={i} style={{ margin: '.35rem 0' }}>{d}</li>
+          <h2 className="section-title">What Sets Meadow Ridge Apart?</h2>
+
+          <div className="grid cols-2" style={{ marginTop: 8 }}>
+            {apartItems.map((it, i) => (
+              <div key={i} className="card">
+                <strong style={{ display: 'block' }}>{it.title}</strong>
+                {it.body ? <div className="muted" style={{ marginTop: 6 }}>{it.body}</div> : null}
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
       )}
 
@@ -104,7 +126,6 @@ export default function About() {
       {galleryItems.length > 0 && (
         <section id="gallery" className="card" style={{ marginTop: 12 }}>
           <h2 className="section-title">Photo Gallery</h2>
-          {/* Centering + letterboxing via fit="contain"; captions from items[].caption */}
           <GallerySlider items={galleryItems} height={420} fit="contain" />
         </section>
       )}
@@ -126,7 +147,9 @@ export default function About() {
               {faqs.map((f, i) => (
                 <tr key={i}>
                   <th style={{ width: '40%', verticalAlign: 'top' }}>{f?.q || ''}</th>
-                  <td><Markdown>{f?.a || ''}</Markdown></td>
+                  <td>
+                    <Markdown>{f?.a || ''}</Markdown>
+                  </td>
                 </tr>
               ))}
             </tbody>
