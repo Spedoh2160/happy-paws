@@ -16,7 +16,7 @@ function Section({ id, title, children }) {
   );
 }
 
-const PAGES = ['home', 'services', 'training', 'about', 'contact', 'jobs', 'privacy', 'credits'];
+const PAGES = ['home', 'services', 'prices', 'training', 'about', 'contact', 'jobs', 'privacy', 'credits'];
 const successBg = 'var(--success, #2e7d32)';
 const dangerBg  = 'var(--danger, #c62828)';
 const FN_BASE   = import.meta.env.DEV ? 'http://localhost:8888' : '';
@@ -294,6 +294,55 @@ function AdminApp({ pass }) {
             </div>
             <button onClick={() => update('services', [ ...(data.services || []), { id:'new', title:'New', description:'' } ])}>Add Service</button>
           </Section>
+
+          // path: src/pages/Admin.jsx (replace ONLY the Services <Section ...> block)
+<Section id="services" title="Services – Text Blocks + Prices">
+  <div className="grid cols-2">
+    {(data.services || []).map((s, i) => (
+      <div key={s.id || i} className="card">
+        <label>ID <input value={s.id || ''} onChange={e => { const c=[...(data.services || [])]; c[i] = { ...c[i], id:e.target.value }; update('services', c); }} /></label>
+        <label>Title <input value={s.title || ''} onChange={e => { const c=[...(data.services || [])]; c[i] = { ...c[i], title:e.target.value }; update('services', c); }} /></label>
+
+        <label>Starting At (e.g. “From $35/day”)
+          <input value={s.startingAt || ''} onChange={e => { const c=[...(data.services || [])]; c[i] = { ...c[i], startingAt:e.target.value }; update('services', c); }} />
+        </label>
+
+        <TextBlockEditor
+          label="Description (Markdown)"
+          value={s.description || ''}
+          onChange={(v)=>{ const c=[...(data.services || [])]; c[i] = { ...c[i], description:v }; update('services', c); }}
+          rows={6}
+        />
+
+        <div style={{ marginTop: 8 }}>
+          <strong style={{ display: 'block', marginBottom: 6 }}>Price Tiers (optional)</strong>
+          {(s.tiers || []).map((t, ti) => (
+            <div key={ti} className="card" style={{ padding: 10 }}>
+              <label>Label <input value={t.label || ''} onChange={e => { const c=[...(data.services || [])]; const tiers=[...(c[i].tiers || [])]; tiers[ti] = { ...(tiers[ti] || {}), label:e.target.value }; c[i] = { ...c[i], tiers }; update('services', c); }} /></label>
+              <label>Price <input value={t.price || ''} onChange={e => { const c=[...(data.services || [])]; const tiers=[...(c[i].tiers || [])]; tiers[ti] = { ...(tiers[ti] || {}), price:e.target.value }; c[i] = { ...c[i], tiers }; update('services', c); }} /></label>
+              <label>Note (optional) <input value={t.note || ''} onChange={e => { const c=[...(data.services || [])]; const tiers=[...(c[i].tiers || [])]; tiers[ti] = { ...(tiers[ti] || {}), note:e.target.value }; c[i] = { ...c[i], tiers }; update('services', c); }} /></label>
+              <button onClick={() => { const c=[...(data.services || [])]; c[i] = { ...c[i], tiers:(c[i].tiers || []).filter((_,x)=>x!==ti) }; update('services', c); }}>Remove Tier</button>
+            </div>
+          ))}
+          <button onClick={() => { const c=[...(data.services || [])]; const tiers=[...(c[i].tiers || [])]; tiers.push({ label:'', price:'', note:'' }); c[i] = { ...c[i], tiers }; update('services', c); }}>Add Tier</button>
+        </div>
+
+        <TextBlockEditor
+          label="Price Details (Markdown, optional)"
+          value={s.priceDetails || ''}
+          onChange={(v)=>{ const c=[...(data.services || [])]; c[i] = { ...c[i], priceDetails:v }; update('services', c); }}
+          rows={4}
+        />
+
+        <button onClick={() => update('services', (data.services || []).filter((_, x) => x !== i))}>Remove</button>
+      </div>
+    ))}
+  </div>
+
+  <button onClick={() => update('services', [ ...(data.services || []), { id:'new', title:'New', description:'', startingAt:'', tiers:[], priceDetails:'' } ])}>
+    Add Service
+  </button>
+</Section>
 
           {/* Training (Text Blocks) */}
           <Section id="training" title="Training – Text Blocks">

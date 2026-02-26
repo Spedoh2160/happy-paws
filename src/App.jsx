@@ -17,6 +17,7 @@ import Chatbot from './components/Chatbot.jsx';
 import SEO from './components/SEO.jsx';
 import Background from './components/Background.jsx';
 import Progress from './pages/progress.jsx';
+import Prices from './pages/Prices.jsx';
 
 // NEW: offset-aware anchor scrolling
 import ScrollOffsetProvider from './components/ScrollOffsetProvider.jsx';
@@ -34,6 +35,7 @@ function Header() {
         <nav className="nav" aria-label="Primary">
           <NavLink to="/" end>Home</NavLink>
           <NavLink to="/services">Services</NavLink>
+          <NavLink to="/prices">Prices</NavLink> {/* ADD */}
           <NavLink to="/training">Training</NavLink>
           <NavLink to="/about">About</NavLink>
           <NavLink to="/contact">Contact</NavLink>
@@ -56,11 +58,11 @@ function Header() {
           <strong>Menu</strong>
           <button className="hamburger" aria-label="Close menu" onClick={()=>setOpen(false)}>✕</button>
         </div>
-        {['/','/services','/training','/about','/contact','/jobs','/admin','/privacy','/credits'].map((h,i)=>(
-          <a key={i} href={h} onClick={()=>setOpen(false)}>
-            {['Home','Services','Training','About','Contact','Jobs','Admin','Privacy','Site Credits'][i]}
-          </a>
-        ))}
+        {['/','/services','/prices','/training','/about','/contact','/jobs','/admin','/privacy','/credits'].map((h,i)=>(
+         <a key={i} href={h} onClick={()=>setOpen(false)}>
+       {['Home','Services','Prices','Training','About','Contact','Jobs','Admin','Privacy','Site Credits'][i]}
+        </a>
+    ))}
         <a className="cta" href="/contact#reservations" onClick={()=>setOpen(false)}>Book Now</a>
       </div>
     </header>
@@ -99,6 +101,25 @@ function FooterVersion(){
   const { data } = useCRM();
   const v = data?.seo?.pages?.home?.title ? 'live' : 'default';
   return <div className="container">© {new Date().getFullYear()} Happy Paws — <span className="muted">content: {v}</span></div>;
+}
+
+// path: src/App.jsx (ADD this helper component somewhere above App())
+function PricesRoute() {
+  const { data } = useCRM();
+  const services = Array.isArray(data?.services) ? data.services : [];
+  const sections = services
+    .map((s) => {
+      const id = String(s?.id || s?.title || '').trim().toLowerCase().replace(/[^a-z0-9\-_]+/g, '-');
+      if (!id) return null;
+      return { id: `svc-${id}`, label: s?.title || 'Service' };
+    })
+    .filter(Boolean);
+
+  return (
+    <Layout pageKey="prices" sections={sections}>
+      <Prices />
+    </Layout>
+  );
 }
 
 function App() {
@@ -143,6 +164,11 @@ function App() {
               </Layout>
             }
           />
+            <Route
+              path="/prices"
+              element={<PricesRoute />}
+          />
+
           <Route
             path="/training"
             element={
