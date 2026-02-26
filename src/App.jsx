@@ -46,7 +46,15 @@ function Header() {
         </nav>
 
         <div style={{display:'flex',gap:8,alignItems:'center'}}>
-          <a className="cta" href="/contact#reservations">Book Now</a>
+          <a
+        className="cta"
+        href="https://booking.moego.pet/ol/landing?name=MeadowRidgePetLodge&fbclid=IwY2xjawQNe3pleHRuA2FlbQIxMQBicmlkETJFTENFZkpySWdaNnNFTlFJc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHry3dLHF3E4flvj6bRHn72UWYY8si9hMjU2_kIHd4inZK31t5sK8CO0fnEIf_aem_k8NfphjiYdgO7tgZ_E5-YQ"
+        target="_blank"
+        rel="noreferrer"
+        onClick={()=>setOpen(false)}
+      >
+        Book Now
+      </a>
           <button className="hamburger" aria-label="Open menu" aria-expanded={open} onClick={()=>setOpen(true)}>☰</button>
         </div>
       </div>
@@ -63,7 +71,14 @@ function Header() {
        {['Home','Services','Prices','Training','About','Contact','Jobs','Admin','Privacy','Site Credits'][i]}
         </a>
     ))}
-        <a className="cta" href="/contact#reservations" onClick={()=>setOpen(false)}>Book Now</a>
+        <a
+          className="cta"
+          href="https://booking.moego.pet/ol/landing?name=MeadowRidgePetLodge&fbclid=IwY2xjawQNe3pleHRuA2FlbQIxMQBicmlkETJFTENFZkpySWdaNnNFTlFJc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHry3dLHF3E4flvj6bRHn72UWYY8si9hMjU2_kIHd4inZK31t5sK8CO0fnEIf_aem_k8NfphjiYdgO7tgZ_E5-YQ"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Book Now
+        </a>
       </div>
     </header>
   );

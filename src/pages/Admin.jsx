@@ -148,10 +148,25 @@ function AdminApp({ pass }) {
                     onClick={saveToServer} disabled={busy} aria-busy={busy ? 'true' : 'false'}>
               {busy ? 'Saving…' : 'Save to Server'}
             </button>
-            <button style={{ background: dangerBg, color:'#fff', border:0, padding:'10px 14px', borderRadius:10 }}
-                    onClick={() => { if (confirm('Reset to defaults?')) reset(); }}>
-              Reset
-            </button>
+           <div
+              className="card"
+              style={{
+                padding: '10px 14px',
+                borderRadius: 10,
+                border: '1px solid var(--border)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                opacity: 0.95,
+              }}
+              role="note"
+              aria-label="Reset disabled"
+            >
+              <span style={{ fontWeight: 700 }}>Reset disabled.</span>
+              <span className="muted">
+                Please contact site administrator for assistance. <a href="tel:17203465390">720-346-5390</a>.
+              </span>
+            </div>
           </div>
         </div>
       </div>
