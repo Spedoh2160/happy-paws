@@ -29,7 +29,7 @@ function Header() {
     <header className="header">
       <div className="container header-inner">
         <a className="brand" href="/" aria-label="Home">
-          <img src="/logo.png" alt="" />
+         <img src="/logo.png" alt="" style={{ height: 48, width: 'auto' }} />
           <span className="brand-name">Meadow Ridge Pet Lodge</span>
         </a>
 

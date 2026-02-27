@@ -28,7 +28,7 @@ const isRealUrl = (v) => {
   return !!s && s !== '#';
 };
 
-function FacebookIcon({ size = 18 }) {
+function FacebookIcon({ size = 24 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
       <path
@@ -40,7 +40,7 @@ function FacebookIcon({ size = 18 }) {
   );
 }
 
-function InstagramIcon({ size = 18 }) {
+function InstagramIcon({ size = 24 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
       <path
@@ -68,8 +68,8 @@ function IconLink({ href, label, children }) {
       aria-label={label}
       title={label}
       style={{
-        width: 36,
-        height: 36,
+        width: 44,
+        height: 44,
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -156,10 +156,13 @@ export default function HoursCard() {
               <div style={{ marginBottom: phone ? 8 : 0 }}>
                 <div style={{ fontWeight: 650 }}>Address</div>
                 {mapsQuery ? (
-                  <a href={mapsQuery} target="_blank" rel="noreferrer">{address}</a>
-                ) : (
-                  <div>{address}</div>
-                )}
+            <>
+                <a href={mapsQuery} target="_blank" rel="noreferrer">{address}</a>
+                <div className="muted" style={{ marginTop: 4 }}>Click address for map</div>
+            </>
+            ) : (
+            <div>{address}</div>
+            )}
               </div>
             ) : null}
 
