@@ -13,6 +13,7 @@ import Privacy from './pages/Privacy.jsx';
 import Credits from './pages/Credits.jsx';
 import Admin from './pages/Admin.jsx';
 import Sidebar from './components/Sidebar.jsx';
+import HoursCard from './components/HoursCard.jsx';
 import Chatbot from './components/Chatbot.jsx';
 import SEO from './components/SEO.jsx';
 import Background from './components/Background.jsx';
@@ -101,11 +102,15 @@ function Layout({ children, sections, pageKey }) {
           <main>{children}</main>
 
           <aside className="chat">
-            <div className="card" style={{height:'100%',display:'flex',flexDirection:'column'}}>
-              <div className="section-title">Ask Happy Paws</div>
-              <Chatbot/>
-            </div>
-          </aside>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <HoursCard />
+
+          <div className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div className="section-title">Ask Happy Paws</div>
+            <Chatbot />
+          </div>
+        </div>
+      </aside>
         </div>
       </div>
     </>
