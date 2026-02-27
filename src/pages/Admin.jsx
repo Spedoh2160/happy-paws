@@ -9,7 +9,11 @@ import TextBlockEditor from '../components/TextBlockEditor.jsx';
 
 function Section({ id, title, children }) {
   return (
-    <section id={id} className="card admin-section">
+    <section
+      id={id}
+      className="card admin-section"
+      style={{ scrollMarginTop: 110 }} // ✅ offset for sticky header
+    >
       <h2 className="section-title">{title}</h2>
       {children}
     </section>
@@ -297,7 +301,7 @@ function AdminApp({ pass }) {
             Update each service’s <code>Starting At</code>, tiered prices, and price details in the Services section below.
           </p>
 
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', height: 10 }}>
             <a className="cta" href="#services">Go to Services Pricing</a>
             <a href="/prices" target="_blank" rel="noreferrer">Open Prices Page</a>
           </div>
