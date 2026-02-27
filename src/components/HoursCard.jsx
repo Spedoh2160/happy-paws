@@ -12,7 +12,9 @@ function normalizeRows(rows) {
     { day: 'Friday', open: '8:00 AM', close: '5:00 PM', closed: false },
     { day: 'Saturday', open: '9:00 AM', close: '2:00 PM', closed: false },
   ];
+
   if (!Array.isArray(rows) || rows.length !== 7) return fallback;
+
   return rows.map((r, i) => ({
     day: String(r?.day || fallback[i].day),
     open: String(r?.open || ''),
@@ -21,11 +23,53 @@ function normalizeRows(rows) {
   }));
 }
 
+function FacebookIcon({ size = 18 }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        fill="currentColor"
+        d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9
+           1.1 0 2.2.2 2.2.2v2.4h-1.2c-1.2 0-1.6.8-1.6 1.5V12h2.7l-.4 2.9h-2.3v7A10 10 0 0 0 22 12Z"
+      />
+    </svg>
+  );
+}
+
+function InstagramIcon({ size = 18 }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        fill="currentColor"
+        d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm10 2H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Z"
+      />
+      <path
+        fill="currentColor"
+        d="M12 7a5 5 0 1 1 0 10a5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6a3 3 0 0 0 0-6Z"
+      />
+      <circle fill="currentColor" cx="17.5" cy="6.5" r="1.2" />
+    </svg>
+  );
+}
+
 function IconLink({ href, label, children }) {
-  if (!href) return null;
+  const url = String(href || '').trim();
+  if (!url || url === '#') return null;
+
   return (
     <a
-      href={href}
+      href={url}
       target="_blank"
       rel="noreferrer"
       aria-label={label}
@@ -59,11 +103,13 @@ export default function HoursCard() {
   const facebookUrl = String(data?.site?.social?.facebookUrl || '').trim();
   const instagramUrl = String(data?.site?.social?.instagramUrl || '').trim();
 
-  const mapsQuery = address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}` : '';
+  const mapsQuery = address
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
+    : '';
 
   return (
     <div className="card" style={{ position: 'sticky', top: 90 }}>
-      <div className="section-title">Hours & Info</div>
+      <div className="section-title">Hours &amp; Info</div>
 
       {/* Weekly table */}
       <div style={{ marginTop: 8 }}>
@@ -129,10 +175,10 @@ export default function HoursCard() {
           <div className="muted" style={{ marginBottom: 6 }}>Social</div>
           <div style={{ display: 'flex', gap: 8 }}>
             <IconLink href={facebookUrl} label="Facebook">
-              <span aria-hidden="true" style={{ fontSize: 18 }}>f</span>
+              <FacebookIcon />
             </IconLink>
             <IconLink href={instagramUrl} label="Instagram">
-              <span aria-hidden="true" style={{ fontSize: 18 }}>◎</span>
+              <InstagramIcon />
             </IconLink>
           </div>
         </div>
