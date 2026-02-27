@@ -8,6 +8,57 @@
     "social": {
       "facebookUrl": "https://www.facebook.com/MeadowRidgePetLodge",
       "instagramUrl": "https://www.instagram.com/meadowridgepetlodge"
+    },
+    "hours": {
+      "weekly": [
+        {
+          "day": "Sunday",
+          "open": "7:00 AM",
+          "close": "9:00 PM",
+          "closed": true
+        },
+        {
+          "day": "Monday",
+          "open": "7:00 AM",
+          "close": "9:00 PM",
+          "closed": true
+        },
+        {
+          "day": "Tuesday",
+          "open": "7:00 AM",
+          "close": "9:00 PM",
+          "closed": true
+        },
+        {
+          "day": "Wednesday",
+          "open": "7:00 AMM",
+          "close": "9:00 PM",
+          "closed": true
+        },
+        {
+          "day": "Thursday",
+          "open": "7:00 AM",
+          "close": "9:00 PM",
+          "closed": true
+        },
+        {
+          "day": "Friday",
+          "open": "7:00 AM",
+          "close": "9:00 PM",
+          "closed": true
+        },
+        {
+          "day": "Saturday",
+          "open": "7:00 AM",
+          "close": "9:00 PM",
+          "closed": true
+        }
+      ],
+      "holiday": "We are currently closed for construction opening 3-27-26!\n\nGrand Opening and Open House March 26th from 2 PM to 7 PM!\n\nStarting March 27th Hours will be:\n\nLobby hours for pickups / Drop offs: 7 AM to 7 PM (fee for any pickup after 7 PM)\nLobby hours: 7 AM to 8 PM\nSocial / Tap Room Area hours: 3 PM to 9 PM\nGrooming: 8 AM to 6 PM Mon-Sun  "
+    },
+    "socials": {
+      "instagram": "#",
+      "facebook": "#"
     }
   },
   "seo": {
@@ -25,6 +76,11 @@
       "services": {
         "title": "Services • Happy Paws",
         "description": "Splash parks, overnight stays, day options, grooming & more.",
+        "image": ""
+      },
+      "prices": {
+        "title": "Prices • Happy Paws",
+        "description": "Service pricing and options.",
         "image": ""
       },
       "training": {
@@ -78,6 +134,14 @@
         "attachment": ""
       },
       "services": {
+        "color": "",
+        "imageUrl": "",
+        "size": "",
+        "repeat": "",
+        "position": "",
+        "attachment": ""
+      },
+      "prices": {
         "color": "",
         "imageUrl": "",
         "size": "",
@@ -264,7 +328,7 @@
       "id": "birthday",
       "title": "Birthday Parties",
       "description": "Custom themes, photos, and treats!  Ask about this add-on to boarding or daycare!  Call or email for pricing!  ashley@meadowridgepetlodge.com",
-      "startingAt": "Birthday Parties"
+      "startingAt": " "
     },
     {
       "id": "cat_boarding",
@@ -287,7 +351,7 @@
     {
       "id": "training",
       "title": "Training",
-      "description": "",
+      "description": "Group Training classes and private classes available!  Email training@meadowridgepetlodge.com for details and pricing!",
       "startingAt": "",
       "tiers": [],
       "priceDetails": ""
@@ -295,7 +359,7 @@
     {
       "id": "add-ons",
       "title": "Add-ons",
-      "description": "",
+      "description": "Splash Park Fun for dogs - just $5.00",
       "startingAt": "",
       "tiers": [],
       "priceDetails": ""
@@ -501,16 +565,6 @@
         "caption": ""
       }
     ],
-    "reviews": [
-      {
-        "name": "Jordan",
-        "text": "Our pup sprints to the door every time!"
-      },
-      {
-        "name": "Morgan",
-        "text": "Training changed our daily life."
-      }
-    ],
     "faqs": [
       {
         "q": "What vaccines are required?",
@@ -563,6 +617,16 @@
       {
         "q": "How much is your 24/7 self-wash and who can use it?",
         "a": "The 24/7 wash is available for single washes while we are open for just $20 or 24/7 access is granted to our monthly subscription members for just $50 per month! \n\nSubscription offers unlimited washes for all dogs the member has registered at Meadow Ridge Pet Lodge.  All dogs in the self wash MUST be registered at Meadow Ridge Pet lodge with current vaccinations.  "
+      }
+    ],
+    "reviews": [
+      {
+        "name": "Jordan",
+        "text": "Our pup sprints to the door every time!"
+      },
+      {
+        "name": "Morgan",
+        "text": "Training changed our daily life."
       }
     ]
   },
