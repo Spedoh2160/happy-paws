@@ -104,6 +104,7 @@ function AdminApp({ pass }) {
     { id: 'appearance-global', label: 'Appearance – Global' },
     { id: 'appearance-pages',  label: 'Appearance – Per Page' },
     { id: 'site-info',         label: 'Site Info' },
+    { id: 'hours',             label: 'Hours & Info' },
     { id: 'home-hero',         label: 'Home – Hero' },
     { id: 'home-teasers',      label: 'Home – Teasers' },
     { id: 'prices',            label: 'Prices – Page' }, 
@@ -259,6 +260,94 @@ function AdminApp({ pass }) {
               <label>Address <input value={data.site?.address || ''} onChange={e => update('site.address', e.target.value)} /></label>
             </div>
           </Section>
+
+          <Section id="hours" title="Hours & Info">
+          <p className="muted" style={{ marginTop: 0 }}>
+            This controls the right-side “Hours & Info” card (above the AI chat) and can be used on the Contact page too.
+          </p>
+
+          <h3 style={{ marginTop: 12 }}>Weekly Hours</h3>
+          <div className="card">
+            {(data.site?.hours?.weekly || []).map((r, i) => (
+              <div key={i} className="grid cols-2" style={{ alignItems: 'end', marginBottom: 10 }}>
+                <label>
+                  Day
+                  <input
+                    value={r?.day || ''}
+                    onChange={(e) => {
+                      const c = clone(data.site?.hours?.weekly || []);
+                      c[i] = { ...(c[i] || {}), day: e.target.value };
+                      update('site.hours.weekly', c);
+                    }}
+                  />
+                </label>
+
+                <label style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                  <input
+                    type="checkbox"
+                    checked={!!r?.closed}
+                    onChange={(e) => {
+                      const c = clone(data.site?.hours?.weekly || []);
+                      c[i] = { ...(c[i] || {}), closed: e.target.checked };
+                      update('site.hours.weekly', c);
+                    }}
+                  />
+                  Closed
+                </label>
+
+                <label>
+                  Open
+                  <input
+                    value={r?.open || ''}
+                    onChange={(e) => {
+                      const c = clone(data.site?.hours?.weekly || []);
+                      c[i] = { ...(c[i] || {}), open: e.target.value };
+                      update('site.hours.weekly', c);
+                    }}
+                    placeholder="8:00 AM"
+                  />
+                </label>
+
+                <label>
+                  Close
+                  <input
+                    value={r?.close || ''}
+                    onChange={(e) => {
+                      const c = clone(data.site?.hours?.weekly || []);
+                      c[i] = { ...(c[i] || {}), close: e.target.value };
+                      update('site.hours.weekly', c);
+                    }}
+                    placeholder="5:00 PM"
+                  />
+                </label>
+              </div>
+            ))}
+            <div className="muted">Tip: Sunday–Saturday should be 7 rows.</div>
+          </div>
+
+          <h3 style={{ marginTop: 12 }}>Holiday Hours</h3>
+          <TextBlockEditor
+            label="Holiday Hours (Plain text)"
+            value={data.site?.hours?.holiday || ''}
+            onChange={(v) => update('site.hours.holiday', v)}
+            rows={4}
+          />
+
+          <h3 style={{ marginTop: 12 }}>Social Links</h3>
+          <div className="grid cols-2">
+            <label>
+              Facebook URL
+              <input value={data.site?.social?.facebookUrl || ''} onChange={(e) => update('site.social.facebookUrl', e.target.value)} />
+            </label>
+            <label>
+              Instagram URL
+              <input value={data.site?.social?.instagramUrl || ''} onChange={(e) => update('site.social.instagramUrl', e.target.value)} />
+            </label>
+          </div>
+
+          <h3 style={{ marginTop: 12 }}>Location (uses Site Info)</h3>
+          <div className="muted">Address and Phone are taken from Site Info above.</div>
+        </Section>
 
           {/* Home */}
           <Section id="home-hero" title="Home – Hero Images">
