@@ -102,8 +102,8 @@ function AdminApp({ pass }) {
     { id: 'site-info',         label: 'Site Info' },
     { id: 'home-hero',         label: 'Home – Hero' },
     { id: 'home-teasers',      label: 'Home – Teasers' },
-    { id: 'services',          label: 'Services (Text Blocks)' },
     { id: 'prices',            label: 'Prices – Page' }, 
+    { id: 'services',          label: 'Services (Text Blocks)' },
     { id: 'training',          label: 'Training (Text Blocks)' },
     { id: 'about',             label: 'About (Text Blocks + Gallery)' },
     { id: 'contact',           label: 'Contact (Text Blocks)' },
@@ -303,7 +303,7 @@ function AdminApp({ pass }) {
           </div>
         </Section>
 
-          {/* Services (Text Blocks per service) */}
+          {/* Services (Text Blocks per service)
           <Section id="services" title="Services – Text Blocks">
             <div className="grid cols-2">
               {(data.services || []).map((s, i) => (
@@ -321,7 +321,7 @@ function AdminApp({ pass }) {
               ))}
             </div>
             <button onClick={() => update('services', [ ...(data.services || []), { id:'new', title:'New', description:'' } ])}>Add Service</button>
-          </Section>
+          </Section> */}
 
 
            
