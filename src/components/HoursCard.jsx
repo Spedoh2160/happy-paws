@@ -25,16 +25,7 @@ function normalizeRows(rows) {
 
 const isRealUrl = (v) => {
   const s = String(v || '').trim();
-  if (!s || s === '#') return false;
-  return /^https?:\/\//i.test(s) || /^mailto:/i.test(s) || /^tel:/i.test(s);
-};
-
-const pickUrl = (...candidates) => {
-  for (const c of candidates) {
-    const s = String(c || '').trim();
-    if (isRealUrl(s)) return s;
-  }
-  return '';
+  return !!s && s !== '#';
 };
 
 function FacebookIcon({ size = 18 }) {
@@ -66,11 +57,12 @@ function InstagramIcon({ size = 18 }) {
 }
 
 function IconLink({ href, label, children }) {
-  if (!isRealUrl(href)) return null;
+  const url = String(href || '').trim();
+  if (!isRealUrl(url)) return null;
 
   return (
     <a
-      href={href}
+      href={url}
       target="_blank"
       rel="noreferrer"
       aria-label={label}
@@ -84,7 +76,6 @@ function IconLink({ href, label, children }) {
         border: '1px solid var(--border)',
         borderRadius: 10,
         textDecoration: 'none',
-        color: 'var(--text, #111)', // ensures icon visible
       }}
     >
       {children}
@@ -102,33 +93,29 @@ export default function HoursCard() {
   const phone = String(data?.site?.phone || '').trim();
   const address = String(data?.site?.address || '').trim();
 
-  // ✅ Supports BOTH schemas + extra fallbacks
-  const facebookUrl = pickUrl(
-    data?.site?.social?.facebookUrl,
-    data?.site?.social?.facebook,
-    data?.site?.socials?.facebookUrl,
-    data?.site?.socials?.facebook
-  );
+  // ✅ Support both schemas:
+  // - new: site.social.facebookUrl / instagramUrl
+  // - old: site.socials.facebook / instagram
+  const facebookUrl = String(
+    data?.site?.social?.facebookUrl || data?.site?.socials?.facebook || ''
+  ).trim();
 
-  const instagramUrl = pickUrl(
-    data?.site?.social?.instagramUrl,
-    data?.site?.social?.instagram,
-    data?.site?.socials?.instagramUrl,
-    data?.site?.socials?.instagram
-  );
+  const instagramUrl = String(
+    data?.site?.social?.instagramUrl || data?.site?.socials?.instagram || ''
+  ).trim();
+
+  const showFacebook = isRealUrl(facebookUrl);
+  const showInstagram = isRealUrl(instagramUrl);
 
   const mapsQuery = address
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
     : '';
 
   return (
-  <div className="card" style={{ position: 'sticky', top: 90 }}>
-    <div className="section-title">Hours &amp; Info</div>
+    <div className="card" style={{ position: 'sticky', top: 90 }}>
+      <div className="section-title">Hours &amp; Info</div>
 
-    <pre style={{ fontSize: 10, overflow: 'auto' }}>
-      {JSON.stringify({ social: data?.site?.social, socials: data?.site?.socials }, null, 2)}
-    </pre>
-
+      {/* Weekly table */}
       <div style={{ marginTop: 8 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <tbody>
@@ -150,6 +137,7 @@ export default function HoursCard() {
         </table>
       </div>
 
+      {/* Holiday hours */}
       {holidayHours ? (
         <div style={{ marginTop: 10 }}>
           <div className="muted" style={{ marginBottom: 6 }}>Holiday Hours</div>
@@ -159,6 +147,7 @@ export default function HoursCard() {
         </div>
       ) : null}
 
+      {/* Location */}
       {(address || phone) ? (
         <div style={{ marginTop: 10 }}>
           <div className="muted" style={{ marginBottom: 6 }}>Location</div>
@@ -184,16 +173,21 @@ export default function HoursCard() {
         </div>
       ) : null}
 
-      {(facebookUrl || instagramUrl) ? (
+      {/* Social */}
+      {(showFacebook || showInstagram) ? (
         <div style={{ marginTop: 10 }}>
           <div className="muted" style={{ marginBottom: 6 }}>Social</div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <IconLink href={facebookUrl} label="Facebook">
-              <FacebookIcon />
-            </IconLink>
-            <IconLink href={instagramUrl} label="Instagram">
-              <InstagramIcon />
-            </IconLink>
+            {showFacebook ? (
+              <IconLink href={facebookUrl} label="Facebook">
+                <FacebookIcon />
+              </IconLink>
+            ) : null}
+            {showInstagram ? (
+              <IconLink href={instagramUrl} label="Instagram">
+                <InstagramIcon />
+              </IconLink>
+            ) : null}
           </div>
         </div>
       ) : null}
