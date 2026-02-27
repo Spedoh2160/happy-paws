@@ -25,7 +25,16 @@ function normalizeRows(rows) {
 
 const isRealUrl = (v) => {
   const s = String(v || '').trim();
-  return !!s && s !== '#';
+  if (!s || s === '#') return false;
+  return /^https?:\/\//i.test(s) || /^mailto:/i.test(s) || /^tel:/i.test(s);
+};
+
+const pickUrl = (...candidates) => {
+  for (const c of candidates) {
+    const s = String(c || '').trim();
+    if (isRealUrl(s)) return s;
+  }
+  return '';
 };
 
 function FacebookIcon({ size = 18 }) {
@@ -57,12 +66,11 @@ function InstagramIcon({ size = 18 }) {
 }
 
 function IconLink({ href, label, children }) {
-  const url = String(href || '').trim();
-  if (!isRealUrl(url)) return null;
+  if (!isRealUrl(href)) return null;
 
   return (
     <a
-      href={url}
+      href={href}
       target="_blank"
       rel="noreferrer"
       aria-label={label}
@@ -76,6 +84,7 @@ function IconLink({ href, label, children }) {
         border: '1px solid var(--border)',
         borderRadius: 10,
         textDecoration: 'none',
+        color: 'var(--text, #111)', // ensures icon visible
       }}
     >
       {children}
@@ -93,19 +102,20 @@ export default function HoursCard() {
   const phone = String(data?.site?.phone || '').trim();
   const address = String(data?.site?.address || '').trim();
 
-  // ✅ Support both schemas:
-  // - new: site.social.facebookUrl / instagramUrl
-  // - old: site.socials.facebook / instagram
-  const facebookUrl = String(
-    data?.site?.social?.facebookUrl || data?.site?.socials?.facebook || ''
-  ).trim();
+  // ✅ Supports BOTH schemas + extra fallbacks
+  const facebookUrl = pickUrl(
+    data?.site?.social?.facebookUrl,
+    data?.site?.social?.facebook,
+    data?.site?.socials?.facebookUrl,
+    data?.site?.socials?.facebook
+  );
 
-  const instagramUrl = String(
-    data?.site?.social?.instagramUrl || data?.site?.socials?.instagram || ''
-  ).trim();
-
-  const showFacebook = isRealUrl(facebookUrl);
-  const showInstagram = isRealUrl(instagramUrl);
+  const instagramUrl = pickUrl(
+    data?.site?.social?.instagramUrl,
+    data?.site?.social?.instagram,
+    data?.site?.socials?.instagramUrl,
+    data?.site?.socials?.instagram
+  );
 
   const mapsQuery = address
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
@@ -115,7 +125,6 @@ export default function HoursCard() {
     <div className="card" style={{ position: 'sticky', top: 90 }}>
       <div className="section-title">Hours &amp; Info</div>
 
-      {/* Weekly table */}
       <div style={{ marginTop: 8 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <tbody>
@@ -137,7 +146,6 @@ export default function HoursCard() {
         </table>
       </div>
 
-      {/* Holiday hours */}
       {holidayHours ? (
         <div style={{ marginTop: 10 }}>
           <div className="muted" style={{ marginBottom: 6 }}>Holiday Hours</div>
@@ -147,7 +155,6 @@ export default function HoursCard() {
         </div>
       ) : null}
 
-      {/* Location */}
       {(address || phone) ? (
         <div style={{ marginTop: 10 }}>
           <div className="muted" style={{ marginBottom: 6 }}>Location</div>
@@ -173,21 +180,16 @@ export default function HoursCard() {
         </div>
       ) : null}
 
-      {/* Social */}
-      {(showFacebook || showInstagram) ? (
+      {(facebookUrl || instagramUrl) ? (
         <div style={{ marginTop: 10 }}>
           <div className="muted" style={{ marginBottom: 6 }}>Social</div>
           <div style={{ display: 'flex', gap: 8 }}>
-            {showFacebook ? (
-              <IconLink href={facebookUrl} label="Facebook">
-                <FacebookIcon />
-              </IconLink>
-            ) : null}
-            {showInstagram ? (
-              <IconLink href={instagramUrl} label="Instagram">
-                <InstagramIcon />
-              </IconLink>
-            ) : null}
+            <IconLink href={facebookUrl} label="Facebook">
+              <FacebookIcon />
+            </IconLink>
+            <IconLink href={instagramUrl} label="Instagram">
+              <InstagramIcon />
+            </IconLink>
           </div>
         </div>
       ) : null}
