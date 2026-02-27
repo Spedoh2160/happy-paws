@@ -86,6 +86,7 @@ section, .card, .section, [data-scroll-target] { scroll-margin-top: var(--header
 /* ---------- Main layout ---------- */
 .main-grid {
   display: grid;
+  align-items: start;
   grid-template-columns: 260px minmax(0,1fr) 320px;
   gap: 18px;
   padding: 18px 0 48px;
@@ -98,10 +99,17 @@ section, .card, .section, [data-scroll-target] { scroll-margin-top: var(--header
 
 /* Right aside: chatbot (desktop/tablet) */
 .chat {
-  position: sticky; top: calc(var(--header-h) + 0px);
-  align-self: start; height: calc(100vh - 120px);
-  display: flex; flex-direction: column;
+  position: sticky;
+  top: 90px;                 /* match your header height */
+  height: calc(100vh - 110px); /* viewport minus header + a little padding */
+  overflow-y: auto;
 }
+
+.chat::-webkit-scrollbar,
+.aside::-webkit-scrollbar {
+  width: 10px;
+}
+
 .chat-log { flex: 1; overflow: auto; border: 1px solid var(--border); border-radius: 12px; padding: 10px; background: #fff; }
 .msg { margin: 8px 0; padding: 10px 12px; border-radius: 12px; max-width: 85%; }
 .msg.user { background: var(--surface); align-self: flex-end; }

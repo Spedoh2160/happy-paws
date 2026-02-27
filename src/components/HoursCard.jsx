@@ -112,7 +112,7 @@ export default function HoursCard() {
     : '';
 
   return (
-    <div className="card" style={{ position: 'sticky', top: 90 }}>
+    <div className="card" style={{ position: 'sticky', top: 0 }}>
       <div className="section-title">Hours &amp; Info</div>
 
       {/* Weekly table */}
