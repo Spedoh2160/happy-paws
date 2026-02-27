@@ -5,9 +5,9 @@
     "phone": "605-415-9000",
     "email": "info@meadowridgepetlodge.com",
     "address": "2512 Marlin Drive, Rapid City, SD",
-    "socials": {
-      "instagram": "#",
-      "facebook": "#"
+    "social": {
+      "facebookUrl": "https://www.facebook.com/MeadowRidgePetLodge",
+      "instagramUrl": "https://www.instagram.com/meadowridgepetlodge"
     }
   },
   "seo": {

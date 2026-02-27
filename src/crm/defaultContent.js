@@ -7,8 +7,8 @@ export const defaultContent = {
     email: "hello@happypaws.example",
     address: "123 Wag Street, Pawville, USA",
     social: {
-      facebookUrl: "#",
-      instagramUrl: "#",
+      facebookUrl: "https://www.facebook.com/MeadowRidgePetLodge",
+      instagramUrl: "https://www.instagram.com/meadowridgepetlodge"
     },
     hours: {
       weekly: [
