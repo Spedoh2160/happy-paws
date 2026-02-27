@@ -23,15 +23,14 @@ function normalizeRows(rows) {
   }));
 }
 
+const isRealUrl = (v) => {
+  const s = String(v || '').trim();
+  return !!s && s !== '#';
+};
+
 function FacebookIcon({ size = 18 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      focusable="false"
-    >
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
       <path
         fill="currentColor"
         d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9
@@ -43,13 +42,7 @@ function FacebookIcon({ size = 18 }) {
 
 function InstagramIcon({ size = 18 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      focusable="false"
-    >
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
       <path
         fill="currentColor"
         d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm10 2H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Z"
@@ -65,7 +58,7 @@ function InstagramIcon({ size = 18 }) {
 
 function IconLink({ href, label, children }) {
   const url = String(href || '').trim();
-  if (!url || url === '#') return null;
+  if (!isRealUrl(url)) return null;
 
   return (
     <a
@@ -100,8 +93,19 @@ export default function HoursCard() {
   const phone = String(data?.site?.phone || '').trim();
   const address = String(data?.site?.address || '').trim();
 
-  const facebookUrl = String(data?.site?.social?.facebookUrl || '').trim();
-  const instagramUrl = String(data?.site?.social?.instagramUrl || '').trim();
+  // ✅ Support both schemas:
+  // - new: site.social.facebookUrl / instagramUrl
+  // - old: site.socials.facebook / instagram
+  const facebookUrl = String(
+    data?.site?.social?.facebookUrl || data?.site?.socials?.facebook || ''
+  ).trim();
+
+  const instagramUrl = String(
+    data?.site?.social?.instagramUrl || data?.site?.socials?.instagram || ''
+  ).trim();
+
+  const showFacebook = isRealUrl(facebookUrl);
+  const showInstagram = isRealUrl(instagramUrl);
 
   const mapsQuery = address
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
@@ -170,16 +174,20 @@ export default function HoursCard() {
       ) : null}
 
       {/* Social */}
-      {(facebookUrl || instagramUrl) ? (
+      {(showFacebook || showInstagram) ? (
         <div style={{ marginTop: 10 }}>
           <div className="muted" style={{ marginBottom: 6 }}>Social</div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <IconLink href={facebookUrl} label="Facebook">
-              <FacebookIcon />
-            </IconLink>
-            <IconLink href={instagramUrl} label="Instagram">
-              <InstagramIcon />
-            </IconLink>
+            {showFacebook ? (
+              <IconLink href={facebookUrl} label="Facebook">
+                <FacebookIcon />
+              </IconLink>
+            ) : null}
+            {showInstagram ? (
+              <IconLink href={instagramUrl} label="Instagram">
+                <InstagramIcon />
+              </IconLink>
+            ) : null}
           </div>
         </div>
       ) : null}
