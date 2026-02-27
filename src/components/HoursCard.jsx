@@ -122,8 +122,12 @@ export default function HoursCard() {
     : '';
 
   return (
-    <div className="card" style={{ position: 'sticky', top: 90 }}>
-      <div className="section-title">Hours &amp; Info</div>
+  <div className="card" style={{ position: 'sticky', top: 90 }}>
+    <div className="section-title">Hours &amp; Info</div>
+
+    <pre style={{ fontSize: 10, overflow: 'auto' }}>
+      {JSON.stringify({ social: data?.site?.social, socials: data?.site?.socials }, null, 2)}
+    </pre>
 
       <div style={{ marginTop: 8 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
