@@ -41,9 +41,9 @@ function Header() {
           <NavLink to="/about">About</NavLink>
           <NavLink to="/contact">Contact</NavLink>
           <NavLink to="/jobs">Jobs</NavLink>
-          <NavLink to="/admin">Admin</NavLink>
+          {/* <NavLink to="/admin">Admin</NavLink>
           <NavLink to="/privacy">Privacy</NavLink>
-          <NavLink to="/credits">Credits</NavLink>
+          <NavLink to="/credits">Credits</NavLink> */}
         </nav>
 
         <div style={{display:'flex',gap:8,alignItems:'center'}}>
@@ -67,11 +67,11 @@ function Header() {
           <strong>Menu</strong>
           <button className="hamburger" aria-label="Close menu" onClick={()=>setOpen(false)}>✕</button>
         </div>
-        {['/','/services','/prices','/training','/about','/contact','/jobs','/admin','/privacy','/credits'].map((h,i)=>(
-         <a key={i} href={h} onClick={()=>setOpen(false)}>
-       {['Home','Services','Prices','Training','About','Contact','Jobs','Admin','Privacy','Site Credits'][i]}
-        </a>
-    ))}
+        {['/','/services','/prices','/training','/about','/contact','/jobs'].map((h,i)=>(
+  <a key={i} href={h} onClick={()=>setOpen(false)}>
+    {['Home','Services','Prices','Training','About','Contact','Jobs'][i]}
+  </a>
+))}
         <a
           className="cta"
           href="https://booking.moego.pet/ol/landing?name=MeadowRidgePetLodge&fbclid=IwY2xjawQNe3pleHRuA2FlbQIxMQBicmlkETJFTENFZkpySWdaNnNFTlFJc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHry3dLHF3E4flvj6bRHn72UWYY8si9hMjU2_kIHd4inZK31t5sK8CO0fnEIf_aem_k8NfphjiYdgO7tgZ_E5-YQ"
