@@ -195,12 +195,12 @@ function App() {
               <Layout
                 pageKey="training"
                 sections={[
-                  {id:'group',label:'Group Obedience'},
-                  {id:'sport',label:'Sport/AKC/Fun'},
-                  {id:'puppy',label:'Puppy University'},
+                  {id:'group',label:'Basic Obedience'},
+                  {id:'puppy',label:'Basic Puppy Obedience'},
                   {id:'private',label:'Private Lessons'},
+                  /* {id:'sport',label:'Sport/AKC/Fun'},
                   {id:'staytrain',label:'Stay-N-Train / Day-Train'},
-                  {id:'trainers',label:'Meet Trainers & Reviews'},
+                  {id:'trainers',label:'Meet Trainers & Reviews'}, */
                 ]}
               >
                 <Training/>
