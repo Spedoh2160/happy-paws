@@ -21,6 +21,9 @@ export const defaultContent = {
         { day: "Saturday", open: "9:00 AM", close: "2:00 PM", closed: false },
       ],
       holiday: "",
+      groomingHours: "",
+      socialAreaHours: "",
+      announcements: ""
     },
   },
 

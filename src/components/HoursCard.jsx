@@ -83,6 +83,17 @@ function IconLink({ href, label, children }) {
   );
 }
 
+function TextBox({ value }) {
+  const v = String(value || '').trim();
+  if (!v) return null;
+
+  return (
+    <div className="card" style={{ padding: 10 }}>
+      <div style={{ whiteSpace: 'pre-wrap' }}>{v}</div>
+    </div>
+  );
+}
+
 export default function HoursCard() {
   const { data } = useCRM();
 
@@ -90,16 +101,18 @@ export default function HoursCard() {
   const rows = useMemo(() => normalizeRows(hours?.weekly), [hours?.weekly]);
 
   const holidayHours = String(hours?.holiday || '').trim();
+
+  // NEW editable fields (Admin)
+  const groomingHours = String(hours?.groomingHours || '').trim();
+  const socialAreaHours = String(hours?.socialAreaHours || '').trim();
+  const announcements = String(hours?.announcements || '').trim();
+
   const phone = String(data?.site?.phone || '').trim();
   const address = String(data?.site?.address || '').trim();
 
-  // ✅ Support both schemas:
-  // - new: site.social.facebookUrl / instagramUrl
-  // - old: site.socials.facebook / instagram
   const facebookUrl = String(
     data?.site?.social?.facebookUrl || data?.site?.socials?.facebook || ''
   ).trim();
-
   const instagramUrl = String(
     data?.site?.social?.instagramUrl || data?.site?.socials?.instagram || ''
   ).trim();
@@ -113,9 +126,9 @@ export default function HoursCard() {
 
   return (
     <div className="card" style={{ position: 'sticky', top: 0 }}>
-      <div className="section-title">Hours &amp; Info</div>
+      <div className="section-title">Lobby Hours</div>
 
-      {/* Weekly table */}
+      {/* Lobby Hours: Weekly table */}
       <div style={{ marginTop: 8 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <tbody>
@@ -137,32 +150,62 @@ export default function HoursCard() {
         </table>
       </div>
 
-      {/* Holiday hours */}
+      {/* Holiday hours (kept under Lobby Hours) */}
       {holidayHours ? (
         <div style={{ marginTop: 10 }}>
-          <div className="muted" style={{ marginBottom: 6 }}>Holiday Hours</div>
-          <div className="card" style={{ padding: 10 }}>
-            <div style={{ whiteSpace: 'pre-wrap' }}>{holidayHours}</div>
+          <div className="muted" style={{ marginBottom: 6 }}>
+            Holiday Hours
           </div>
+          <TextBox value={holidayHours} />
         </div>
       ) : null}
 
-      {/* Location */}
+      {/* Grooming Hours */}
+      <div style={{ marginTop: 12 }}>
+        <div className="section-title" style={{ marginTop: 0 }}>
+          Grooming Hours
+        </div>
+        <TextBox value={groomingHours} />
+      </div>
+
+      {/* Social Area Hours */}
+      <div style={{ marginTop: 12 }}>
+        <div className="section-title" style={{ marginTop: 0 }}>
+          Social Area Hours
+        </div>
+        <TextBox value={socialAreaHours} />
+      </div>
+
+      {/* Important Announcements */}
+      <div style={{ marginTop: 12 }}>
+        <div className="section-title" style={{ marginTop: 0 }}>
+          Important Announcements
+        </div>
+        <TextBox value={announcements} />
+      </div>
+
+      {/* Location (unchanged) */}
       {(address || phone) ? (
-        <div style={{ marginTop: 10 }}>
-          <div className="muted" style={{ marginBottom: 6 }}>Location</div>
+        <div style={{ marginTop: 12 }}>
+          <div className="muted" style={{ marginBottom: 6 }}>
+            Location
+          </div>
           <div className="card" style={{ padding: 10 }}>
             {address ? (
               <div style={{ marginBottom: phone ? 8 : 0 }}>
                 <div style={{ fontWeight: 650 }}>Address</div>
                 {mapsQuery ? (
-            <>
-                <a href={mapsQuery} target="_blank" rel="noreferrer">{address}</a>
-                <div className="muted" style={{ marginTop: 4 }}>Click address for map</div>
-            </>
-            ) : (
-            <div>{address}</div>
-            )}
+                  <>
+                    <a href={mapsQuery} target="_blank" rel="noreferrer">
+                      {address}
+                    </a>
+                    <div className="muted" style={{ marginTop: 4 }}>
+                      Click address for map
+                    </div>
+                  </>
+                ) : (
+                  <div>{address}</div>
+                )}
               </div>
             ) : null}
 
@@ -176,10 +219,12 @@ export default function HoursCard() {
         </div>
       ) : null}
 
-      {/* Social */}
+      {/* Social (unchanged) */}
       {(showFacebook || showInstagram) ? (
-        <div style={{ marginTop: 10 }}>
-          <div className="muted" style={{ marginBottom: 6 }}>Social</div>
+        <div style={{ marginTop: 12 }}>
+          <div className="muted" style={{ marginBottom: 6 }}>
+            Social
+          </div>
           <div style={{ display: 'flex', gap: 8 }}>
             {showFacebook ? (
               <IconLink href={facebookUrl} label="Facebook">
