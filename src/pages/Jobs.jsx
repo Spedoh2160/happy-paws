@@ -15,7 +15,7 @@ export default function Jobs(){
           <div key={i} className="card">
             <h3 className="section-title">{p.title}</h3>
             <Markdown>{p.description || ''}</Markdown>
-            {p.applyLink && <p><a className="cta" href={p.applyLink}>Apply Now</a></p>}
+            {/* {p.applyLink && <p><a className="cta" href={p.applyLink}>Apply Now</a></p>} */}
           </div>
         ))}
       </div>
