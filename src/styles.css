@@ -112,6 +112,20 @@ section, .card, .section, [data-scroll-target] { scroll-margin-top: var(--header
 
 .chat-log { flex: 1; overflow: auto; border: 1px solid var(--border); border-radius: 12px; padding: 10px; background: #fff; }
 .msg { margin: 8px 0; padding: 10px 12px; border-radius: 12px; max-width: 85%; }
+/* Example: 3-line clamp instead of single-line ellipsis */
+/* Collapsed text clamp (with wrapping) */
+.collapsed {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+
+  -webkit-line-clamp: 3; /* Safari/Chrome/iOS */
+  line-clamp: 3;         /* “standard” property for lint/compat warnings */
+
+  overflow: hidden;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
 .msg.user { background: var(--surface); align-self: flex-end; }
 .msg.bot { background: #fff; border: 1px solid var(--border); align-self: flex-start; }
 .chat-input { display: flex; gap: 8px; margin-top: 10px; }
