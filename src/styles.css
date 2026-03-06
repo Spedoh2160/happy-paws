@@ -92,18 +92,26 @@ section, .card, .section, [data-scroll-target] { scroll-margin-top: var(--header
   padding: 18px 0 48px;
 }
 
+/* Stack right aside sooner so center doesn't get crushed */
+@media (max-width: 1100px) {
+  .main-grid {
+    grid-template-columns: 260px minmax(0, 1fr); /* drop right aside into next row */
+  }
+
+.chat {
+    grid-column: 1 / -1;     /* span full width */
+    position: static;        /* stop sticky when stacked (optional but usually best) */
+    height: auto;
+    margin-top: 12px;
+  }
+}  
 /* Left aside: page jump menu (desktop/tablet) */
 .aside { position: sticky; top: calc(var(--header-h) + 0px); align-self: start; }
 .aside .link { display: block; padding: 8px 10px; border-radius: 10px; color: #374151; }
 .aside .link.active, .aside .link:hover { background: var(--surface); color: var(--text); }
 
 /* Right aside: chatbot (desktop/tablet) */
-.chat {
-  position: sticky;
-  top: 90px;                 /* match your header height */
-  height: calc(100vh - 110px); /* viewport minus header + a little padding */
-  overflow-y: auto;
-}
+
 
 .chat::-webkit-scrollbar,
 .aside::-webkit-scrollbar {
