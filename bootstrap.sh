@@ -57,7 +57,7 @@ cat > index.html <<'EOF'
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Happy Paws – Pet Day Care & Boarding</title>
+    <title>Meadow Ridge Pet Lodge – Pet Day Care & Boarding</title>
     <meta name="description" content="Indoor/outdoor splash parks, boarding, grooming, training, and more for your best friend."/>
     <link rel="icon" href="/logo.svg" />
   </head>
@@ -219,7 +219,7 @@ function Header() {
       <div className="container header-inner">
         <a className="brand" href="/" aria-label="Home">
           <img src="/logo.svg" alt="" />
-          <span className="brand-name">Happy Paws</span>
+          <span className="brand-name">Mountain Ridge Pet Lodge</span>
         </a>
         <nav className="nav" aria-label="Primary">
           <NavLink to="/" end>Home</NavLink>
@@ -273,7 +273,7 @@ function Layout({ children, sections }) {
         <main>{children}</main>
         <aside className="chat">
           <div className="card" style={{height:'100%', display:'flex', flexDirection:'column'}}>
-            <div className="section-title">Ask Happy Paws</div>
+            <div className="section-title">Chat Desk (AI)</div>
             <Chatbot/>
           </div>
         </aside>
@@ -335,7 +335,7 @@ export default function App() {
         <Route path="*" element={<div className="container" style={{padding:'40px 0'}}><h1>404</h1><p>Page not found.</p></div>} />
       </Routes>
       <footer className="footer">
-        <div className="container">&copy; {new Date().getFullYear()} Happy Paws. All rights reserved.</div>
+        <div className="container">&copy; {new Date().getFullYear()} Meadow Ridge Pet Lodge. All rights reserved.</div>
       </footer>
     </CRMProvider>
   );
@@ -1069,7 +1069,7 @@ EOF
 
 # README
 cat > README.md <<'EOF'
-# Happy Paws – Pet Day Care & Boarding (React + Vite + Netlify)
+# Meadow Ridge Pet Lodge – Pet Day Care & Boarding (React + Vite + Netlify)
 
 ## Dev
 1) npm i

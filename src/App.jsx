@@ -106,7 +106,7 @@ function Layout({ children, sections, pageKey }) {
           <HoursCard />
 
           <div className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <div className="section-title">Ask Happy Paws</div>
+            <div className="section-title">Ask Us</div>
             <Chatbot />
           </div>
         </div>
@@ -120,7 +120,7 @@ function Layout({ children, sections, pageKey }) {
 function FooterVersion(){
   const { data } = useCRM();
   const v = data?.seo?.pages?.home?.title ? 'live' : 'default';
-  return <div className="container">© {new Date().getFullYear()} Happy Paws — <span className="muted">content: {v}</span></div>;
+  return <div className="container">© {new Date().getFullYear()} Meadow Ridge Pet Lodge — <span className="muted">content: {v}</span></div>;
 }
 
 // path: src/App.jsx (ADD this helper component somewhere above App())
