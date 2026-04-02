@@ -335,7 +335,7 @@ export default function App() {
         <Route path="*" element={<div className="container" style={{padding:'40px 0'}}><h1>404</h1><p>Page not found.</p></div>} />
       </Routes>
       <footer className="footer">
-        <div className="container">&copy; {new Date().getFullYear()} Meadow Ridge Pet Lodge. All rights reserved.</div>
+        <div className="container">&copy; {new Date().getFullYear()} Bow Meow, Inc. All rights reserved.</div>
       </footer>
     </CRMProvider>
   );

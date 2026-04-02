@@ -120,7 +120,7 @@ function Layout({ children, sections, pageKey }) {
 function FooterVersion(){
   const { data } = useCRM();
   const v = data?.seo?.pages?.home?.title ? 'live' : 'default';
-  return <div className="container">© {new Date().getFullYear()}Bow Meow, Inc — <span className="muted">content: {v}</span></div>;
+  return <div className="container">© {new Date().getFullYear()} Bow Meow, Inc — <span className="muted">content: {v}</span></div>;
 }
 
 // path: src/App.jsx (ADD this helper component somewhere above App())
